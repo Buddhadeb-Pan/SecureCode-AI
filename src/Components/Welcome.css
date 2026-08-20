@@ -1,0 +1,486 @@
+.welcome-page {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    overflow: hidden;
+    background: radial-gradient( circle at 78% 18%, rgba(0, 174, 255, 0.14), transparent 30%), radial-gradient( circle at 16% 86%, rgba(32, 86, 255, 0.1), transparent 34%), linear-gradient( 135deg, #04060b 0%, #07101b 50%, #04070d 100%);
+}
+
+
+/* ==============================
+   DECORATIVE BACKGROUND
+============================== */
+
+.welcome-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient( rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient( 90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: linear-gradient( to bottom, rgba(0, 0, 0, 0.7), transparent 92%);
+}
+
+.welcome-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+}
+
+.welcome-glow-one {
+    width: 380px;
+    height: 380px;
+    top: -180px;
+    right: 8%;
+    background: rgba(0, 183, 255, 0.11);
+}
+
+.welcome-glow-two {
+    width: 330px;
+    height: 330px;
+    left: -150px;
+    bottom: -130px;
+    background: rgba(67, 97, 238, 0.1);
+}
+
+
+/* ==============================
+   MAIN CONTAINER
+============================== */
+
+.welcome-container {
+    position: relative;
+    z-index: 2;
+    width: min(1240px, calc(100% - 64px));
+    min-height: 100vh;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* ==============================
+   BRAND
+============================== */
+
+.welcome-brand {
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.welcome-logo {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(89, 207, 255, 0.24);
+    border-radius: 13px;
+    color: #65d9ff;
+    background: rgba(30, 157, 210, 0.08);
+    box-shadow: inset 0 0 20px rgba(78, 207, 255, 0.05), 0 0 30px rgba(0, 183, 255, 0.05);
+}
+
+.welcome-brand-name {
+    font-size: 1.08rem;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    color: #f7faff;
+}
+
+.welcome-brand-name strong {
+    color: #63d8ff;
+    font-weight: 700;
+}
+
+
+/* ==============================
+   MAIN CONTENT
+============================== */
+
+.welcome-content {
+    flex: 1;
+    max-width: 920px;
+    margin: 4vh auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.welcome-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 13px;
+    border: 1px solid rgba(94, 218, 255, 0.17);
+    border-radius: 999px;
+    background: rgba(54, 160, 203, 0.06);
+    color: #8cdef7;
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.13em;
+    margin-bottom: 26px;
+}
+
+.welcome-title {
+    max-width: 920px;
+    font-size: clamp(3rem, 6vw, 6.3rem);
+    line-height: 0.98;
+    font-weight: 730;
+    letter-spacing: -0.055em;
+    color: #f6f9ff;
+    text-wrap: balance;
+}
+
+.welcome-title span {
+    display: block;
+    color: transparent;
+    background: linear-gradient( 90deg, #8de7ff, #42b9ff, #85a9ff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    padding-bottom: 8px;
+}
+
+.welcome-subtitle {
+    max-width: 760px;
+    margin-top: 28px;
+    color: #8997aa;
+    font-size: clamp(1rem, 1.4vw, 1.12rem);
+    line-height: 1.75;
+}
+
+
+/* ==============================
+   SHORT PRODUCT VISUAL
+============================== */
+
+.welcome-process {
+    margin-top: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 13px 18px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.075);
+    background: rgba(255, 255, 255, 0.025);
+    backdrop-filter: blur(14px);
+}
+
+.process-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #b9c5d5;
+    font-size: 0.82rem;
+    font-weight: 550;
+}
+
+.process-item svg {
+    color: #62d7fb;
+}
+
+.process-line {
+    width: 44px;
+    height: 1px;
+    margin: 0 15px;
+    background: linear-gradient( 90deg, transparent, rgba(97, 216, 255, 0.5), transparent);
+}
+
+
+/* ==============================
+   BOTTOM ACTION AREA
+============================== */
+
+.welcome-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 55px 0 42px;
+}
+
+.welcome-action-card {
+    position: relative;
+    min-height: 225px;
+    padding: 27px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.075);
+    background: linear-gradient( 145deg, rgba(255, 255, 255, 0.038), rgba(255, 255, 255, 0.012));
+    backdrop-filter: blur(16px);
+    transition: transform 0.28s ease, border-color 0.28s ease, background 0.28s ease;
+}
+
+.welcome-action-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(104, 208, 255, 0.17);
+    background: linear-gradient( 145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.017));
+}
+
+.welcome-action-primary {
+    background: linear-gradient( 135deg, rgba(19, 123, 175, 0.12), rgba(38, 77, 157, 0.06));
+    border-color: rgba(88, 201, 255, 0.14);
+}
+
+.action-number {
+    position: absolute;
+    top: 24px;
+    right: 26px;
+    color: #4f6073;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.action-label {
+    color: #617187;
+    font-size: 0.76rem;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.welcome-action-card h2 {
+    color: #f2f6fc;
+    font-size: 1.35rem;
+    font-weight: 650;
+    letter-spacing: -0.025em;
+    margin-bottom: 8px;
+}
+
+.action-description {
+    max-width: 420px;
+    color: #77869a;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+
+/* ==============================
+   BUTTONS
+============================== */
+
+.welcome-btn {
+    width: fit-content;
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 12px 17px;
+    border-radius: 11px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 650;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, border-color 0.22s ease;
+}
+
+.welcome-btn:hover {
+    transform: translateY(-2px);
+}
+
+.welcome-btn-secondary {
+    color: #dbe5f0;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.welcome-btn-secondary:hover {
+    border-color: rgba(108, 208, 255, 0.23);
+    background: rgba(74, 188, 231, 0.07);
+}
+
+.welcome-btn-primary {
+    color: #021019;
+    background: linear-gradient( 135deg, #75ddff, #3db8f1);
+    box-shadow: 0 10px 30px rgba(39, 181, 239, 0.14);
+}
+
+.welcome-btn-primary:hover {
+    box-shadow: 0 15px 38px rgba(39, 181, 239, 0.22);
+}
+
+
+/* ==============================
+   RESPONSIVE
+============================== */
+
+@media (max-width: 850px) {
+    .welcome-container {
+        width: min(100% - 36px, 720px);
+    }
+    .welcome-brand {
+        min-height: 82px;
+    }
+    .welcome-content {
+        margin-top: 5vh;
+    }
+    .welcome-title {
+        font-size: clamp(2.8rem, 12vw, 4.8rem);
+    }
+    .welcome-actions {
+        grid-template-columns: 1fr;
+        padding-top: 45px;
+    }
+}
+
+@media (max-width: 580px) {
+    .welcome-container {
+        width: calc(100% - 28px);
+    }
+    .welcome-process {
+        width: 100%;
+        flex-direction: column;
+        gap: 12px;
+        padding: 18px;
+    }
+    .process-line {
+        width: 1px;
+        height: 20px;
+        margin: 0;
+        background: linear-gradient( to bottom, transparent, rgba(97, 216, 255, 0.5), transparent);
+    }
+    .welcome-subtitle {
+        font-size: 0.96rem;
+    }
+    .welcome-action-card {
+        min-height: 230px;
+    }
+}
+
+
+/* =========================================
+   WELCOME POPUP
+========================================= */
+
+.welcome-popup-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(2, 6, 12, 0.68);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    animation: popupOverlayIn 0.35s ease;
+}
+
+.welcome-popup {
+    position: relative;
+    width: min(420px, 100%);
+    padding: 42px 34px 34px;
+    text-align: center;
+    border: 1px solid rgba(105, 215, 255, 0.2);
+    border-radius: 22px;
+    background: linear-gradient( 145deg, rgba(12, 24, 38, 0.98), rgba(5, 12, 22, 0.98));
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 50px rgba(47, 188, 255, 0.08);
+    animation: popupCardIn 0.4s ease;
+}
+
+.welcome-popup-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    cursor: pointer;
+    color: #8493a7;
+    background: rgba(255, 255, 255, 0.04);
+    transition: 0.2s ease;
+}
+
+.welcome-popup-close:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.welcome-popup-icon {
+    width: 62px;
+    height: 62px;
+    margin: 0 auto 20px;
+    display: grid;
+    place-items: center;
+    border-radius: 18px;
+    color: #68dcff;
+    border: 1px solid rgba(104, 220, 255, 0.22);
+    background: rgba(61, 188, 238, 0.08);
+    box-shadow: 0 0 35px rgba(49, 192, 248, 0.1);
+}
+
+.welcome-popup-small {
+    margin-bottom: 8px;
+    color: #6e8095;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+}
+
+.welcome-popup h2 {
+    margin-bottom: 13px;
+    color: #f5f9ff;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+}
+
+.welcome-popup h2 span {
+    color: #65d9ff;
+}
+
+.welcome-popup-text {
+    max-width: 310px;
+    margin: 0 auto 25px;
+    color: #8392a6;
+    font-size: 0.92rem;
+    line-height: 1.65;
+}
+
+.welcome-popup-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 12px 22px;
+    border-radius: 11px;
+    cursor: pointer;
+    color: #021019;
+    font-size: 0.9rem;
+    font-weight: 700;
+    background: linear-gradient( 135deg, #75ddff, #3db8f1);
+    box-shadow: 0 12px 30px rgba(39, 181, 239, 0.16);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.welcome-popup-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 36px rgba(39, 181, 239, 0.24);
+}
+
+@keyframes popupOverlayIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes popupCardIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}

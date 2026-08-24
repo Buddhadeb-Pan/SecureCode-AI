@@ -1207,6 +1207,311 @@ Demo frontend security report.
 
         </section>
 
+        {/* =========================================
+    SECURITY FIX COMPARISON
+========================================= */}
+
+<section className="dashboard-section fix-comparison-section">
+
+  <div className="dashboard-section-heading">
+    <div>
+      <span>SECURITY FIX COMPARISON</span>
+
+      <h2>
+        Why is the corrected code better?
+      </h2>
+    </div>
+
+    <p>
+      Compare the original implementation with the recommended secure
+      version and understand why the suggested code is safer.
+    </p>
+  </div>
+
+
+  {/* ORIGINAL VS CORRECTED */}
+
+  <div className="fix-comparison-grid">
+
+    {/* ORIGINAL */}
+    <article className="comparison-code-card original-comparison-card">
+
+      <div className="comparison-card-header">
+
+        <div className="comparison-header-icon original-icon">
+          <TriangleAlert size={23} />
+        </div>
+
+        <div>
+          <span>USER SUBMISSION</span>
+          <h3>Original Code</h3>
+        </div>
+
+        <span className="comparison-status original-status">
+          NEEDS REVIEW
+        </span>
+
+      </div>
+
+
+      <div className="comparison-summary">
+
+        <div>
+          <span>Security Status</span>
+          <strong className="comparison-risk-text">
+            Higher Risk
+          </strong>
+        </div>
+
+        <div>
+          <span>Detected Issue</span>
+          <strong>
+            Unsafe Input Handling
+          </strong>
+        </div>
+
+        <div>
+          <span>Severity</span>
+          <strong className="comparison-high-text">
+            HIGH
+          </strong>
+        </div>
+
+      </div>
+
+
+      <div className="comparison-explanation">
+
+        <span>WHY THIS CODE IS AFFECTED</span>
+
+        <p>
+          The original implementation accepts input without clearly
+          enforcing a safe input boundary. In a fixed-size memory
+          structure, oversized input may exceed the expected capacity
+          and create unsafe program behaviour.
+        </p>
+
+      </div>
+
+
+      <div className="comparison-points">
+
+        <span className="comparison-negative-point">
+          <TriangleAlert size={17} />
+          Input boundary is not clearly controlled
+        </span>
+
+        <span className="comparison-negative-point">
+          <TriangleAlert size={17} />
+          Risky input handling pattern remains present
+        </span>
+
+        <span className="comparison-negative-point">
+          <TriangleAlert size={17} />
+          Additional validation is required
+        </span>
+
+      </div>
+
+    </article>
+
+
+
+    {/* CORRECTED */}
+    <article className="comparison-code-card corrected-comparison-card">
+
+      <div className="comparison-card-header">
+
+        <div className="comparison-header-icon corrected-icon">
+          <ShieldCheck size={23} />
+        </div>
+
+        <div>
+          <span>SECURE RECOMMENDATION</span>
+          <h3>Corrected Code</h3>
+        </div>
+
+        <span className="comparison-status corrected-status">
+          RECOMMENDED
+        </span>
+
+      </div>
+
+
+      <div className="comparison-summary">
+
+        <div>
+          <span>Security Status</span>
+          <strong className="comparison-safe-text">
+            Safer
+          </strong>
+        </div>
+
+        <div>
+          <span>Risk Handling</span>
+          <strong>
+            Improved
+          </strong>
+        </div>
+
+        <div>
+          <span>Recommendation</span>
+          <strong className="comparison-safe-text">
+            ACCEPT
+          </strong>
+        </div>
+
+      </div>
+
+
+      <div className="comparison-explanation">
+
+        <span>WHY THIS CODE IS RECOMMENDED</span>
+
+        <p>
+          The corrected implementation uses safer input handling and
+          introduces explicit validation. This reduces the identified
+          risk while preserving the intended behaviour of the original
+          program.
+        </p>
+
+      </div>
+
+
+      <div className="comparison-points">
+
+        <span className="comparison-positive-point">
+          <CircleCheck size={17} />
+          Safer input handling strategy
+        </span>
+
+        <span className="comparison-positive-point">
+          <CircleCheck size={17} />
+          Explicit validation improves control
+        </span>
+
+        <span className="comparison-positive-point">
+          <CircleCheck size={17} />
+          Original functionality is preserved
+        </span>
+
+      </div>
+
+    </article>
+
+  </div>
+
+
+
+  {/* WHY BETTER */}
+
+  <div className="why-better-panel">
+
+    <div className="why-better-heading">
+
+      <div className="why-better-icon">
+        <WandSparkles size={25} />
+      </div>
+
+      <div>
+        <span>AI SECURITY REASONING</span>
+        <h3>Why choose the corrected code?</h3>
+      </div>
+
+    </div>
+
+
+    <div className="why-better-grid">
+
+      <article>
+        <span>01</span>
+
+        <h4>Security</h4>
+
+        <p>
+          The identified unsafe input pattern is replaced with a safer
+          approach that provides better control over received data.
+        </p>
+      </article>
+
+
+      <article>
+        <span>02</span>
+
+        <h4>Validation</h4>
+
+        <p>
+          The recommended implementation validates the input instead of
+          blindly accepting arbitrary data.
+        </p>
+      </article>
+
+
+      <article>
+        <span>03</span>
+
+        <h4>Functionality</h4>
+
+        <p>
+          The corrected version is designed to preserve the original
+          purpose of the program while improving its security.
+        </p>
+      </article>
+
+
+      <article>
+        <span>04</span>
+
+        <h4>Maintainability</h4>
+
+        <p>
+          Clearer and safer handling makes the implementation easier to
+          understand, review and improve in the future.
+        </p>
+      </article>
+
+    </div>
+
+  </div>
+
+
+
+  {/* FINAL VERDICT */}
+
+  <div className="fix-verdict-panel">
+
+    <div className="fix-verdict-icon">
+      <ShieldCheck size={28} />
+    </div>
+
+
+    <div className="fix-verdict-content">
+
+      <span>FINAL RECOMMENDATION</span>
+
+      <h3>
+        Corrected Code is the recommended implementation.
+      </h3>
+
+      <p>
+        It addresses the identified security concern while maintaining
+        the intended behaviour of the submitted code. The recommendation
+        is based on improved input safety, validation and secure coding
+        practice.
+      </p>
+
+    </div>
+
+
+    <div className="fix-verdict-badge">
+      <CircleCheck size={18} />
+      BETTER CHOICE
+    </div>
+
+  </div>
+
+</section>
+
 
 
         {/* ===============================

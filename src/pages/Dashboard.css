@@ -1688,3 +1688,825 @@
         translate: 0 7px;
     }
 }
+
+
+/* =========================================
+   SECURITY FIX COMPARISON
+========================================= */
+
+.fix-comparison-section {
+    position: relative;
+}
+
+
+/* =========================================
+   ORIGINAL VS CORRECTED
+========================================= */
+
+.fix-comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.comparison-code-card {
+    position: relative;
+    min-height: 450px;
+    padding: 29px;
+    overflow: hidden;
+    border-radius: 22px;
+    background: linear-gradient( 145deg, rgba(11, 23, 36, 0.94), rgba(6, 14, 23, 0.97));
+    box-shadow: 0 30px 75px rgba(0, 0, 0, 0.2);
+    transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.original-comparison-card {
+    border: 1px solid rgba(235, 158, 96, 0.12);
+}
+
+.corrected-comparison-card {
+    border: 1px solid rgba(92, 216, 244, 0.13);
+}
+
+.comparison-code-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 38px 90px rgba(0, 0, 0, 0.27);
+}
+
+.original-comparison-card:hover {
+    border-color: rgba(235, 158, 96, 0.25);
+}
+
+.corrected-comparison-card:hover {
+    border-color: rgba(102, 218, 249, 0.27);
+}
+
+
+/* HEADER */
+
+.comparison-card-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 14px;
+}
+
+.comparison-header-icon {
+    width: 54px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
+}
+
+.original-icon {
+    color: #e9a468;
+    background: rgba(230, 149, 87, 0.07);
+}
+
+.corrected-icon {
+    color: #6edcf9;
+    background: rgba(62, 188, 230, 0.075);
+}
+
+.comparison-card-header>div:nth-child(2)>span {
+    color: #718599;
+    font-size: 0.9rem;
+    font-weight: 720;
+    letter-spacing: 0.1em;
+}
+
+.comparison-card-header h3 {
+    margin-top: 4px;
+    font-size: 1.45rem;
+}
+
+.comparison-status {
+    padding: 8px 11px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+}
+
+.original-status {
+    color: #eda66d;
+    background: rgba(230, 146, 83, 0.07);
+}
+
+.corrected-status {
+    color: #72dcf7;
+    background: rgba(62, 189, 231, 0.07);
+}
+
+
+/* SUMMARY */
+
+.comparison-summary {
+    margin-top: 27px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.comparison-summary>div {
+    min-height: 87px;
+    padding: 14px;
+    border-radius: 13px;
+    border: 1px solid rgba(255, 255, 255, 0.055);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.comparison-summary span {
+    display: block;
+    color: #667b8f;
+    font-size: 0.88rem;
+}
+
+.comparison-summary strong {
+    display: block;
+    margin-top: 7px;
+    color: #d9e6ef;
+    font-size: 1rem;
+}
+
+.comparison-risk-text,
+.comparison-high-text {
+    color: #e9a166 !important;
+}
+
+.comparison-safe-text {
+    color: #70daf6 !important;
+}
+
+
+/* EXPLANATION */
+
+.comparison-explanation {
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.comparison-explanation>span {
+    color: #71d8f2;
+    font-size: 0.91rem;
+    font-weight: 720;
+    letter-spacing: 0.09em;
+}
+
+.original-comparison-card .comparison-explanation>span {
+    color: #dfa166;
+}
+
+.comparison-explanation p {
+    margin-top: 10px;
+    color: #8597a9;
+    font-size: 1.06rem;
+    line-height: 1.75;
+}
+
+
+/* POINTS */
+
+.comparison-points {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+.comparison-points>span {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #90a2b2;
+    font-size: 1rem;
+}
+
+.comparison-points svg {
+    flex-shrink: 0;
+}
+
+.comparison-negative-point svg {
+    color: #e5a166;
+}
+
+.comparison-positive-point svg {
+    color: #6edaf7;
+}
+
+
+/* =========================================
+   WHY BETTER
+========================================= */
+
+.why-better-panel {
+    margin-top: 20px;
+    padding: 31px;
+    border-radius: 22px;
+    border: 1px solid rgba(102, 218, 249, 0.09);
+    background: linear-gradient( 145deg, rgba(10, 23, 36, 0.92), rgba(6, 15, 24, 0.96));
+}
+
+.why-better-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.why-better-icon {
+    width: 54px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
+    color: #70dcf8;
+    background: rgba(58, 185, 227, 0.075);
+}
+
+.why-better-heading span {
+    color: #6bd9f6;
+    font-size: 0.9rem;
+    font-weight: 730;
+    letter-spacing: 0.1em;
+}
+
+.why-better-heading h3 {
+    margin-top: 4px;
+    font-size: 1.55rem;
+}
+
+.why-better-grid {
+    margin-top: 27px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 13px;
+}
+
+.why-better-grid article {
+    position: relative;
+    min-height: 190px;
+    padding: 21px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.055);
+    background: rgba(255, 255, 255, 0.02);
+    transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+
+.why-better-grid article:hover {
+    transform: translateY(-5px);
+    border-color: rgba(103, 218, 249, 0.15);
+    background: rgba(55, 183, 228, 0.035);
+}
+
+.why-better-grid article>span {
+    position: absolute;
+    right: 18px;
+    top: 17px;
+    color: rgba(255, 255, 255, 0.15);
+    font-size: 0.82rem;
+    font-weight: 750;
+}
+
+.why-better-grid h4 {
+    color: #dce9f2;
+    font-size: 1.16rem;
+}
+
+.why-better-grid p {
+    margin-top: 11px;
+    color: #7f91a4;
+    font-size: 1rem;
+    line-height: 1.68;
+}
+
+
+/* =========================================
+   FINAL VERDICT
+========================================= */
+
+.fix-verdict-panel {
+    position: relative;
+    margin-top: 20px;
+    padding: 29px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 20px;
+    border-radius: 21px;
+    border: 1px solid rgba(100, 218, 249, 0.12);
+    background: linear-gradient( 110deg, rgba(25, 94, 116, 0.13), rgba(7, 17, 28, 0.94));
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.18);
+}
+
+.fix-verdict-icon {
+    width: 61px;
+    height: 61px;
+    display: grid;
+    place-items: center;
+    border-radius: 17px;
+    color: #72ddf9;
+    background: rgba(61, 190, 231, 0.08);
+}
+
+.fix-verdict-content>span {
+    color: #6bd9f6;
+    font-size: 0.9rem;
+    font-weight: 730;
+    letter-spacing: 0.1em;
+}
+
+.fix-verdict-content h3 {
+    margin-top: 5px;
+    font-size: 1.45rem;
+}
+
+.fix-verdict-content p {
+    max-width: 950px;
+    margin-top: 8px;
+    color: #8496a8;
+    font-size: 1.03rem;
+    line-height: 1.7;
+}
+
+.fix-verdict-badge {
+    min-height: 46px;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 11px;
+    color: #76dff8;
+    background: rgba(61, 189, 231, 0.065);
+    font-size: 0.88rem;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1100px) {
+    .why-better-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .fix-comparison-grid {
+        grid-template-columns: 1fr;
+    }
+    .fix-verdict-panel {
+        grid-template-columns: auto 1fr;
+    }
+    .fix-verdict-badge {
+        grid-column: 1 / -1;
+        width: fit-content;
+    }
+}
+
+@media (max-width: 620px) {
+    .comparison-code-card,
+    .why-better-panel,
+    .fix-verdict-panel {
+        padding: 22px;
+    }
+    .comparison-card-header {
+        grid-template-columns: auto 1fr;
+    }
+    .comparison-status {
+        grid-column: 1 / -1;
+        width: fit-content;
+    }
+    .comparison-summary {
+        grid-template-columns: 1fr;
+    }
+    .why-better-grid {
+        grid-template-columns: 1fr;
+    }
+    .fix-verdict-panel {
+        grid-template-columns: 1fr;
+    }
+    .fix-verdict-icon {
+        margin-bottom: 3px;
+    }
+}
+
+
+/* =========================================
+   DASHBOARD - LARGE READABLE TYPOGRAPHY
+   ONLY TEXT SIZE UPGRADE
+========================================= */
+
+
+/* MAIN INTRO */
+
+.analysis-complete-badge {
+    font-size: 1rem;
+}
+
+.dashboard-intro-left>p {
+    font-size: 1.25rem;
+    line-height: 1.75;
+}
+
+.dashboard-file-meta {
+    font-size: 1.12rem;
+}
+
+.dashboard-engine-status small {
+    font-size: 0.92rem;
+}
+
+.dashboard-engine-status strong {
+    font-size: 1.14rem;
+}
+
+
+/* =========================================
+   SUMMARY CARDS
+========================================= */
+
+.summary-card-header>span {
+    font-size: 1.13rem;
+}
+
+.summary-main-value {
+    font-size: 2.4rem;
+}
+
+.summary-card>p {
+    font-size: 1.06rem;
+    line-height: 1.6;
+}
+
+.status-review {
+    font-size: 1.9rem;
+}
+
+.security-score-ring strong {
+    font-size: 2.05rem;
+}
+
+.security-score-ring span {
+    font-size: 0.92rem;
+}
+
+.score-text strong {
+    font-size: 1.15rem;
+}
+
+.score-text p {
+    font-size: 1.03rem;
+    line-height: 1.6;
+}
+
+
+/* =========================================
+   SECTION HEADINGS
+========================================= */
+
+.dashboard-section-heading>div>span {
+    font-size: 0.98rem;
+}
+
+.dashboard-section-heading h2 {
+    font-size: 2.75rem;
+}
+
+.dashboard-section-heading p {
+    font-size: 1.15rem;
+    line-height: 1.7;
+}
+
+
+/* =========================================
+   SEVERITY
+========================================= */
+
+.severity-card>span {
+    font-size: 1.13rem;
+}
+
+.severity-card strong {
+    font-size: 2.9rem;
+}
+
+.severity-card p {
+    font-size: 1.04rem;
+}
+
+
+/* =========================================
+   RISK DISTRIBUTION
+========================================= */
+
+.risk-distribution-heading span {
+    font-size: 0.94rem;
+}
+
+.risk-distribution-heading h3 {
+    font-size: 1.5rem;
+}
+
+.risk-row-label {
+    font-size: 1.1rem;
+}
+
+
+/* =========================================
+   VULNERABILITIES
+========================================= */
+
+.vulnerability-badge {
+    font-size: 0.96rem;
+}
+
+.vulnerability-title-area h3 {
+    font-size: 1.5rem;
+}
+
+.vulnerability-title-area p {
+    font-size: 1.1rem;
+    line-height: 1.65;
+}
+
+.vulnerability-line {
+    font-size: 1.06rem;
+}
+
+.view-details-text {
+    font-size: 1.06rem;
+}
+
+
+/* EXPANDED DETAILS */
+
+.finding-detail-box>span {
+    font-size: 1.06rem;
+}
+
+.finding-detail-box p {
+    font-size: 1.1rem;
+    line-height: 1.75;
+}
+
+
+/* =========================================
+   CODE + AI PANEL
+========================================= */
+
+.panel-top span {
+    font-size: 0.95rem;
+}
+
+.panel-top h3 {
+    font-size: 1.35rem;
+}
+
+.code-risk-badge,
+.ai-badge {
+    font-size: 0.92rem !important;
+}
+
+
+/* Vulnerable code */
+
+.dashboard-code-line {
+    font-size: 1.1rem;
+    min-height: 44px;
+}
+
+.code-line-warning {
+    font-size: 0.9rem;
+}
+
+
+/* AI Insight */
+
+.ai-insight-item h4 {
+    font-size: 1.3rem;
+}
+
+.ai-insight-item p {
+    font-size: 1.1rem;
+    line-height: 1.78;
+}
+
+.ai-confidence {
+    font-size: 1.06rem;
+}
+
+
+/* =========================================
+   REMEDIATION
+========================================= */
+
+.remediation-content>span {
+    font-size: 0.97rem;
+}
+
+.remediation-content h2 {
+    font-size: 2.15rem;
+}
+
+.remediation-content>p {
+    font-size: 1.13rem;
+    line-height: 1.78;
+}
+
+.remediation-points span {
+    font-size: 1.08rem;
+}
+
+
+/* =========================================
+   CORRECTED CODE
+========================================= */
+
+.corrected-code-file strong {
+    font-size: 1.17rem;
+}
+
+.corrected-code-file span {
+    font-size: 1rem;
+}
+
+.copy-code-button {
+    font-size: 1.06rem;
+}
+
+.secure-code-line {
+    font-size: 1.1rem;
+    min-height: 42px;
+}
+
+
+/* =========================================
+   NEW SECURITY FIX COMPARISON SECTION
+========================================= */
+
+.comparison-card-header>div:nth-child(2)>span {
+    font-size: 0.98rem;
+}
+
+.comparison-card-header h3 {
+    font-size: 1.6rem;
+}
+
+.comparison-status {
+    font-size: 0.9rem;
+}
+
+
+/* Comparison summary */
+
+.comparison-summary span {
+    font-size: 0.98rem;
+}
+
+.comparison-summary strong {
+    font-size: 1.12rem;
+}
+
+
+/* Why affected / why recommended */
+
+.comparison-explanation>span {
+    font-size: 1rem;
+}
+
+.comparison-explanation p {
+    font-size: 1.13rem;
+    line-height: 1.78;
+}
+
+
+/* Comparison bullet points */
+
+.comparison-points>span {
+    font-size: 1.08rem;
+    line-height: 1.55;
+}
+
+
+/* =========================================
+   WHY BETTER PANEL
+========================================= */
+
+.why-better-heading span {
+    font-size: 0.98rem;
+}
+
+.why-better-heading h3 {
+    font-size: 1.7rem;
+}
+
+.why-better-grid article>span {
+    font-size: 0.9rem;
+}
+
+.why-better-grid h4 {
+    font-size: 1.28rem;
+}
+
+.why-better-grid p {
+    font-size: 1.08rem;
+    line-height: 1.72;
+}
+
+
+/* =========================================
+   FINAL RECOMMENDATION
+========================================= */
+
+.fix-verdict-content>span {
+    font-size: 0.98rem;
+}
+
+.fix-verdict-content h3 {
+    font-size: 1.6rem;
+}
+
+.fix-verdict-content p {
+    font-size: 1.1rem;
+    line-height: 1.75;
+}
+
+.fix-verdict-badge {
+    font-size: 0.95rem;
+}
+
+
+/* =========================================
+   BOTTOM ACTIONS
+========================================= */
+
+.dashboard-bottom-actions p {
+    font-size: 1.08rem;
+}
+
+.bottom-new-review-button,
+.download-report-button {
+    font-size: 1.08rem;
+}
+
+.dashboard-back-features>span {
+    font-size: 1.04rem;
+}
+
+.dashboard-footer {
+    font-size: 1.04rem;
+}
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 900px) {
+    .dashboard-section-heading h2 {
+        font-size: 2.35rem;
+    }
+    .dashboard-intro-left>p {
+        font-size: 1.14rem;
+    }
+    .vulnerability-title-area h3 {
+        font-size: 1.35rem;
+    }
+    .comparison-explanation p,
+    .ai-insight-item p,
+    .remediation-content>p {
+        font-size: 1.05rem;
+    }
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 620px) {
+    .dashboard-section-heading h2 {
+        font-size: 2rem;
+    }
+    .summary-main-value {
+        font-size: 2.1rem;
+    }
+    .severity-card strong {
+        font-size: 2.4rem;
+    }
+    .dashboard-code-line,
+    .secure-code-line {
+        font-size: 0.96rem;
+    }
+    .comparison-explanation p,
+    .comparison-points>span,
+    .why-better-grid p,
+    .fix-verdict-content p {
+        font-size: 1rem;
+    }
+}

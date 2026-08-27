@@ -79,23 +79,29 @@ function AnalysisDashboard() {
   const navigate = useNavigate();
 
   const [copied, setCopied] = useState(false);
-  const [openFinding, setOpenFinding] = useState(1);
+  const [openFinding, setOpenFinding] = useState(null);
 
+  const {
+    code = "",
+    fileName: receivedFileName,
+    language: frontendLanguage,
+    analysisResult,
+  } = location.state || {};
 
   const fileName =
-    location.state?.fileName || "secure-login.cpp";
-
-  const receivedLanguage =
-    location.state?.language || "C++";
+    receivedFileName ||
+    analysisResult?.file_name ||
+    "untitled.code";
 
   const language =
-    receivedLanguage === "Auto Detect"
-      ? "C++"
-      : receivedLanguage;
-
+    analysisResult?.detected_language ||
+    (frontendLanguage === "Auto Detect"
+      ? "Unknown"
+      : frontendLanguage) ||
+    "Unknown";
 
   const sourceCode =
-    location.state?.code ||
+    code ||
 `int main() {
   char user[10];
 
@@ -103,7 +109,6 @@ function AnalysisDashboard() {
 
   return 0;
 }`;
-
 
   const correctedCode =
 `#include <iostream>

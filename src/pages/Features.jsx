@@ -93,12 +93,30 @@ function Features() {
     }
   };
 
-  const handleAnalyse = () => {
+  const handleAnalyse = async () => {
   if (!code.trim()) return;
 
-  setIsAnalysing(true);
+  try {
+    setIsAnalysing(true);
 
-  setTimeout(() => {
+    const response = await fetch("http://127.0.0.1:8000/analyze", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        code: code,
+        file_name: fileName,
+        language: language,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Backend analysis failed");
+    }
+
+    const result = await response.json();
+
     setIsAnalysing(false);
 
     navigate("/dashboard", {
@@ -106,9 +124,14 @@ function Features() {
         code: code,
         fileName: fileName,
         language: language,
+        analysisResult: result,
       },
     });
-  }, 1600);
+  } catch (error) {
+    console.error("Analysis error:", error);
+    setIsAnalysing(false);
+    alert("Backend server is not responding.");
+  }
 };
 
   const lineCount = Math.max(code.split("\n").length, 12);

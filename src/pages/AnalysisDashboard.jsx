@@ -21,57 +21,13 @@ import {
   ChevronUp,
   ScanSearch,
   WandSparkles,
+  X,
+  Lock,
+  ArrowRight,
 } from "lucide-react";
 
+import { API_BASE_URL, authFetch, getStoredToken } from "../config/api.js";
 import "./Dashboard.css";
-
-
-const demoVulnerabilities = [
-  {
-    id: 1,
-    severity: "HIGH",
-    title: "Unsafe Input Handling",
-    line: "Line 03",
-    short:
-      "Potentially unsafe user-controlled input handling was detected.",
-    why:
-      "The input is accepted without sufficient length validation or defensive checks before being processed.",
-    impact:
-      "Improper handling of user-controlled input may cause unexpected application behaviour and can introduce security weaknesses.",
-    fix:
-      "Use safer input handling, validate the received value and enforce strict length or boundary checks before processing it.",
-  },
-
-  {
-    id: 2,
-    severity: "MEDIUM",
-    title: "Missing Input Validation",
-    line: "Line 08",
-    short:
-      "Input may be used without sufficient validation.",
-    why:
-      "Data coming from an external source should be validated before it is trusted by the application.",
-    impact:
-      "Unexpected or malformed input may reach sensitive application logic.",
-    fix:
-      "Validate the expected format, range and permitted characters before using the input.",
-  },
-
-  {
-    id: 3,
-    severity: "LOW",
-    title: "Limited Error Handling",
-    line: "Line 12",
-    short:
-      "Security-sensitive operations may require clearer error handling.",
-    why:
-      "Generic or missing error handling can make failures more difficult to control and investigate.",
-    impact:
-      "Unexpected application states may become harder to detect during execution.",
-    fix:
-      "Add controlled error handling and avoid exposing unnecessary internal information.",
-  },
-];
 
 
 function AnalysisDashboard() {
@@ -80,6 +36,7 @@ function AnalysisDashboard() {
 
   const [copied, setCopied] = useState(false);
   const [openFinding, setOpenFinding] = useState(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const {
     code = "",
@@ -109,28 +66,335 @@ function AnalysisDashboard() {
 
   return 0;
 }`;
+const securityScore =
+  analysisResult?.security_score ?? 100;
 
-  const correctedCode =
-`#include <iostream>
-#include <string>
+const issuesFound =
+  analysisResult?.issues_found ?? 0;
 
-int main() {
-    std::string user;
+const analysisTimeMs =
+  analysisResult?.analysis_time_ms ?? 0;
 
-    std::getline(std::cin, user);
+const severityCounts =
+  analysisResult?.severity_counts || {
+    critical: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+  };
+  // ==========================================
+// AI DASHBOARD DATA
+// ==========================================
 
-    const std::size_t MAX_ALLOWED_LENGTH = 50;
+const aiSecurityInsight =
+  analysisResult?.ai_security_insight || {};
 
-    if (user.empty() || user.length() > MAX_ALLOWED_LENGTH) {
-        std::cerr << "Invalid input." << std::endl;
-        return 1;
+const aiRemediation =
+  analysisResult?.ai_remediation || {};
+
+const aiSecureCode =
+  analysisResult?.secure_code || "";
+
+const aiComparison =
+  analysisResult?.ai_comparison || {};
+const aiInsightConfidence = Math.round(
+  Number(aiSecurityInsight.confidence ?? 0)
+);
+
+const remediationActions =
+  Array.isArray(aiRemediation.actions)
+    ? aiRemediation.actions
+    : [];
+
+const correctedCode =
+  aiSecureCode ||
+  "// AI secure code is not available for this analysis.";
+
+const vulnerabilities =
+  analysisResult?.vulnerabilities?.map((finding, index) => {
+    const primaryLine =
+      finding.line ||
+      finding.primary_line ||
+      finding.sink?.line ||
+      0;
+
+    const affectedLines =
+      Array.isArray(finding.affected_lines) &&
+      finding.affected_lines.length > 0
+        ? finding.affected_lines
+            .map(Number)
+            .filter((line) => Number.isFinite(line) && line > 0)
+        : primaryLine
+          ? [Number(primaryLine)]
+          : [];
+
+    return {
+      id: finding.id || index + 1,
+
+      severity:
+        finding.severity || "LOW",
+
+      title:
+        finding.type || "Security Issue",
+
+      line:
+        `Line ${String(primaryLine).padStart(2, "0")}`,
+
+      primaryLine:
+        Number(primaryLine),
+
+      short:
+        finding.description ||
+        "Security issue detected.",
+
+      why:
+        finding.ai_why ||
+        finding.ai_assessment?.why ||
+        finding.why ||
+        "AI explanation is not available for this finding.",
+
+      impact:
+        finding.ai_impact ||
+        finding.ai_assessment?.impact ||
+        finding.impact ||
+        "AI impact analysis is not available for this finding.",
+
+      fix:
+        finding.ai_fix ||
+        finding.ai_assessment?.fix ||
+        finding.fix ||
+        "AI remediation is not available for this finding.",
+
+      confidence:
+        finding.ai_confidence ??
+        finding.severity_confidence ??
+        finding.confidence ??
+        0,
+
+      source:
+        finding.source || null,
+
+      evidence:
+        Array.isArray(finding.evidence)
+          ? finding.evidence
+          : [],
+
+      sink:
+        finding.sink || null,
+
+      affectedLines,
+
+      location:
+        finding.location || {},
+
+      evidenceLevel:
+        finding.evidence_level || null,
+
+      analysisMethod:
+        finding.analysis_method || null,
+
+      secretVariable:
+        finding.variable || null,
+
+      secretFormat:
+        finding.secret_format || null,
+
+      entropy:
+        finding.entropy ?? null,
+
+      placeholder:
+        finding.placeholder ?? false,
+    };
+  }) || [];
+const severityPriority = {
+  CRITICAL: 4,
+  HIGH: 3,
+  MEDIUM: 2,
+  LOW: 1,
+};
+
+const primaryFinding =
+  [...vulnerabilities].sort(
+    (a, b) =>
+      (severityPriority[b.severity] || 0) -
+      (severityPriority[a.severity] || 0)
+  )[0] || null;
+
+const detectedIssueLabel = primaryFinding
+  ? issuesFound > 1
+    ? `${primaryFinding.title} + ${issuesFound - 1} more`
+    : primaryFinding.title
+  : "No confirmed issue";
+
+const secureFileName =
+  fileName && fileName !== "untitled.code"
+    ? `secure-${fileName}`
+    : "secure-fix.code";
+
+  const getEvidenceLineLabel = (item) => {
+  if (!item) return "";
+
+  const start =
+    item.start_line ||
+    item.line ||
+    item.location?.start_line;
+
+  const end =
+    item.end_line ||
+    item.line ||
+    item.location?.end_line ||
+    start;
+
+  if (!start) return "";
+
+  if (start === end) {
+    return `Line ${String(start).padStart(2, "0")}`;
+  }
+
+  return `Lines ${String(start).padStart(2, "0")}–${String(
+    end
+  ).padStart(2, "0")}`;
+};
+
+
+const getEvidenceCode = (item) => {
+  if (!item) return "";
+
+  return (
+    item.code ||
+    item.text ||
+    item.snippet ||
+    item.expression ||
+    ""
+  );
+};
+
+
+const getFindingFlow = (finding) => {
+  const flow = [];
+
+  if (
+  finding.title
+    ?.toLowerCase()
+    .includes("buffer overflow")
+) {
+  const flow = [];
+
+  if (finding.source) {
+    flow.push({
+      ...finding.source,
+      role: "buffer_declaration",
+    });
+  }
+
+  if (finding.sink) {
+    flow.push({
+      ...finding.sink,
+      role: "unsafe_write",
+    });
+  }
+
+  return flow;
+}
+
+  if (finding.source) {
+    flow.push({
+      ...finding.source,
+      role: "source",
+    });
+  }
+
+  if (Array.isArray(finding.evidence)) {
+    finding.evidence.forEach((item) => {
+      const role = String(
+        item.role ||
+        item.kind ||
+        item.type ||
+        "propagation"
+      ).toLowerCase();
+
+      if (role === "source" || role === "sink") {
+        return;
+      }
+
+      flow.push({
+        ...item,
+        role: "propagation",
+      });
+    });
+  }
+
+  if (finding.sink) {
+    flow.push({
+      ...finding.sink,
+      role: "sink",
+    });
+  }
+
+  return flow;
+};
+
+
+const formatAffectedLines = (lines = []) => {
+  const numbers = [
+    ...new Set(
+      lines
+        .map(Number)
+        .filter(
+          (line) =>
+            Number.isFinite(line) && line > 0
+        )
+    ),
+  ].sort((a, b) => a - b);
+
+  if (numbers.length === 0) {
+    return "No exact line information";
+  }
+
+  const ranges = [];
+
+  let start = numbers[0];
+  let previous = numbers[0];
+
+  for (let i = 1; i <= numbers.length; i += 1) {
+    const current = numbers[i];
+
+    if (current === previous + 1) {
+      previous = current;
+      continue;
     }
 
-    std::cout << "Input accepted." << std::endl;
+    ranges.push(
+      start === previous
+        ? String(start).padStart(2, "0")
+        : `${String(start).padStart(
+            2,
+            "0"
+          )}–${String(previous).padStart(
+            2,
+            "0"
+          )}`
+    );
 
-    return 0;
-}`;
+    start = current;
+    previous = current;
+  }
 
+  return ranges.join(", ");
+};
+
+
+const affectedLineMap = new Map();
+
+vulnerabilities.forEach((finding) => {
+  finding.affectedLines.forEach((line) => {
+    if (!affectedLineMap.has(line)) {
+      affectedLineMap.set(line, finding);
+    }
+  });
+});
+
+  
 
   const handleCopyCode = async () => {
     try {
@@ -152,88 +416,110 @@ int main() {
   };
 
 
-  const handleDownloadReport = () => {
-    const report = `
-SECURECODE AI
-SECURITY ANALYSIS REPORT
+  const handleDownloadReport = async () => {
+    const rawToken = localStorage.getItem("token");
+    const token =
+      rawToken &&
+      rawToken !== "undefined" &&
+      rawToken !== "null" &&
+      rawToken.trim().length > 0
+        ? rawToken.trim()
+        : null;
 
-File:
-${fileName}
+    // 1. If user is NOT logged in:
+    // - Do not call the PDF endpoint
+    // - Do not show the raw backend alert
+    // - Show the professional modal
+    if (!token) {
+      setShowAuthModal(true);
+      return;
+    }
 
-Language:
-${language}
+    // 2. If user IS logged in:
+    // - Send the JWT access token with the report request:
+    //   Authorization: Bearer <access_token>
+    // - PDF download should work normally
+    try {
+      const response = await fetch(`${API_BASE_URL}/reports/pdf`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          file_name: fileName,
+          language: language,
+          code: sourceCode,
+          security_score: securityScore,
+          issues_found: issuesFound,
+          severity_counts: severityCounts,
+          vulnerabilities: analysisResult?.vulnerabilities || [],
+          ai_security_insight: analysisResult?.ai_security_insight || {},
+          ai_remediation: analysisResult?.ai_remediation || {},
+          secure_code: analysisResult?.secure_code || "",
+          ai_comparison: analysisResult?.ai_comparison || {},
+          analysis_time_ms: analysisResult?.analysis_time_ms || 0,
+          analysis_time_seconds: analysisResult?.analysis_time_seconds || 0,
+        }),
+      });
 
-Security Score:
-78 / 100
-
-Status:
-Needs Review
-
-Analysis Time:
-2.4 seconds
-
-Severity Summary:
-Critical: 0
-High: 2
-Medium: 3
-Low: 1
-
-
-DETECTED VULNERABILITIES
-
-1. HIGH - Unsafe Input Handling
-Affected Line: 03
-
-Potential unsafe handling of user-controlled input.
-
-Recommended Fix:
-Use validated and bounded input handling.
-
-
-2. MEDIUM - Missing Input Validation
-Affected Line: 08
-
-Validate external input before processing it.
-
-
-3. LOW - Limited Error Handling
-Affected Line: 12
-
-Use controlled error handling for sensitive operations.
-
-
-CORRECTED CODE
-
-${correctedCode}
-
-
-Generated by SecureCode AI
-Demo frontend security report.
-`;
-
-
-    const blob = new Blob(
-      [report],
-      {
-        type: "text/plain",
+      // If token expired or invalid (401), open login/register modal instead of raw alert
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        setShowAuthModal(true);
+        return;
       }
-    );
 
-    const downloadUrl =
-      URL.createObjectURL(blob);
+      if (!response.ok) {
+        let detailMsg = "";
+        try {
+          const errorData = await response.json();
+          detailMsg = errorData?.detail || "";
+        } catch (_) {}
 
-    const anchor =
-      document.createElement("a");
+        if (detailMsg && detailMsg.toLowerCase().includes("authentication")) {
+          localStorage.removeItem("token");
+          setShowAuthModal(true);
+          return;
+        }
 
-    anchor.href = downloadUrl;
+        throw new Error(
+          detailMsg || `PDF generation failed with status ${response.status}`
+        );
+      }
 
-    anchor.download =
-      "SecureCode-AI-Security-Report.txt";
+      const pdfBlob = await response.blob();
+      const downloadUrl = URL.createObjectURL(pdfBlob);
+      const anchor = document.createElement("a");
+      const safeFileName = fileName
+        .replace(/\.[^/.]+$/, "")
+        .replace(/[^a-zA-Z0-9-_]/g, "-");
 
-    anchor.click();
-
-    URL.revokeObjectURL(downloadUrl);
+      anchor.href = downloadUrl;
+      anchor.download = `${safeFileName || "SecureCode-AI"}-security-report.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error("Unable to download PDF report:", error);
+      // Suppress any raw auth credential errors from alert
+      if (
+        error?.message &&
+        (error.message.toLowerCase().includes("credentials") ||
+          error.message.toLowerCase().includes("authentication") ||
+          error.message.includes("401"))
+      ) {
+        setShowAuthModal(true);
+      } else {
+        alert(
+          "PDF report could not be generated. Please make sure the backend is running."
+        );
+      }
+    }
   };
+
 
 
   const toggleFinding = (id) => {
@@ -422,7 +708,7 @@ Demo frontend security report.
               <div className="security-score-ring">
 
                 <div>
-                  <strong>78</strong>
+                  <strong>{securityScore}</strong>
 
                   <span>/100</span>
                 </div>
@@ -433,7 +719,7 @@ Demo frontend security report.
               <div className="score-text">
 
                 <strong>
-                  Needs Review
+                  {issuesFound > 0 ? "Needs Review" : "Secure"}
                 </strong>
 
                 <p>
@@ -462,12 +748,10 @@ Demo frontend security report.
             </div>
 
             <strong className="summary-main-value status-review">
-              Needs Review
+              {issuesFound > 0 ? "Needs Review" : "Secure"}
             </strong>
 
-            <p>
-              Potential risks detected
-            </p>
+            
 
           </article>
 
@@ -487,7 +771,9 @@ Demo frontend security report.
             </div>
 
             <strong className="summary-main-value">
-              2.4 sec
+              {analysisTimeMs >= 1000
+    ? `${(analysisTimeMs / 1000).toFixed(2)} sec`
+    : `${analysisTimeMs.toFixed(2)} ms`}
             </strong>
 
             <p>
@@ -506,174 +792,151 @@ Demo frontend security report.
 
         <section className="dashboard-section severity-section">
 
-          <div className="dashboard-section-heading">
+  <div className="dashboard-section-heading">
+    <div>
+      <span>SECURITY OVERVIEW</span>
 
-            <div>
-              <span>
-                SECURITY OVERVIEW
-              </span>
+      <h2>Severity Summary</h2>
 
-              <h2>
-                Severity Summary
-              </h2>
+      <p>
+        Findings grouped by their estimated
+        security impact.
+      </p>
+    </div>
 
-              <p>
-                Findings grouped by their estimated
-                security impact.
-              </p>
-            </div>
+    <TriangleAlert size={25} />
+  </div>
 
-            <TriangleAlert size={25} />
 
+  <div className="severity-layout">
+
+    <div className="severity-card-grid">
+
+      {/* CRITICAL */}
+      <article className="severity-card severity-critical">
+        <span>Critical</span>
+
+        <strong>
+          {String(severityCounts.critical).padStart(2, "0")}
+        </strong>
+
+        <p>Immediate risks</p>
+      </article>
+
+
+      {/* HIGH */}
+      <article className="severity-card severity-high">
+        <span>High</span>
+
+        <strong>
+          {String(severityCounts.high).padStart(2, "0")}
+        </strong>
+
+        <p>Priority findings</p>
+      </article>
+
+
+      {/* MEDIUM */}
+      <article className="severity-card severity-medium">
+        <span>Medium</span>
+
+        <strong>
+          {String(severityCounts.medium).padStart(2, "0")}
+        </strong>
+
+        <p>Review recommended</p>
+      </article>
+
+
+      {/* LOW */}
+      <article className="severity-card severity-low">
+        <span>Low</span>
+
+        <strong>
+          {String(severityCounts.low).padStart(2, "0")}
+        </strong>
+
+        <p>Minor findings</p>
+      </article>
+
+    </div>
+
+
+    {/* RISK DISTRIBUTION */}
+    <div className="risk-distribution-card">
+
+      <div className="risk-distribution-heading">
+        <div>
+          <span>RISK DISTRIBUTION</span>
+          <h3>Finding Distribution</h3>
+        </div>
+
+        <ScanSearch size={22} />
+      </div>
+
+
+      <div className="risk-distribution-list">
+
+        {/* HIGH */}
+        <div className="risk-distribution-row">
+
+          <div className="risk-row-label">
+            <span>High</span>
+
+            <strong>
+              {String(severityCounts.high).padStart(2, "0")}
+            </strong>
           </div>
 
-
-          <div className="severity-layout">
-
-            <div className="severity-card-grid">
-
-              <article className="severity-card severity-critical">
-
-                <span>
-                  Critical
-                </span>
-
-                <strong>
-                  00
-                </strong>
-
-                <p>
-                  Immediate risks
-                </p>
-
-              </article>
-
-
-              <article className="severity-card severity-high">
-
-                <span>
-                  High
-                </span>
-
-                <strong>
-                  02
-                </strong>
-
-                <p>
-                  Priority findings
-                </p>
-
-              </article>
-
-
-              <article className="severity-card severity-medium">
-
-                <span>
-                  Medium
-                </span>
-
-                <strong>
-                  03
-                </strong>
-
-                <p>
-                  Review recommended
-                </p>
-
-              </article>
-
-
-              <article className="severity-card severity-low">
-
-                <span>
-                  Low
-                </span>
-
-                <strong>
-                  01
-                </strong>
-
-                <p>
-                  Minor findings
-                </p>
-
-              </article>
-
-            </div>
-
-
-            {/* DISTRIBUTION */}
-
-            <div className="risk-distribution-card">
-
-              <div className="risk-distribution-heading">
-
-                <div>
-                  <span>
-                    RISK DISTRIBUTION
-                  </span>
-
-                  <h3>
-                    Finding Distribution
-                  </h3>
-                </div>
-
-                <ScanSearch size={22} />
-
-              </div>
-
-
-              <div className="risk-distribution-list">
-
-                <div className="risk-distribution-row">
-
-                  <div className="risk-row-label">
-                    <span>High</span>
-                    <strong>02</strong>
-                  </div>
-
-                  <div className="risk-progress-track">
-                    <span className="risk-progress-high" />
-                  </div>
-
-                </div>
-
-
-                <div className="risk-distribution-row">
-
-                  <div className="risk-row-label">
-                    <span>Medium</span>
-                    <strong>03</strong>
-                  </div>
-
-                  <div className="risk-progress-track">
-                    <span className="risk-progress-medium" />
-                  </div>
-
-                </div>
-
-
-                <div className="risk-distribution-row">
-
-                  <div className="risk-row-label">
-                    <span>Low</span>
-                    <strong>01</strong>
-                  </div>
-
-                  <div className="risk-progress-track">
-                    <span className="risk-progress-low" />
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
-
+          <div className="risk-progress-track">
+            <span className="risk-progress-high" />
           </div>
 
-        </section>
+        </div>
 
+
+        {/* MEDIUM */}
+        <div className="risk-distribution-row">
+
+          <div className="risk-row-label">
+            <span>Medium</span>
+
+            <strong>
+              {String(severityCounts.medium).padStart(2, "0")}
+            </strong>
+          </div>
+
+          <div className="risk-progress-track">
+            <span className="risk-progress-medium" />
+          </div>
+
+        </div>
+
+
+        {/* LOW */}
+        <div className="risk-distribution-row">
+
+          <div className="risk-row-label">
+            <span>Low</span>
+
+            <strong>
+              {String(severityCounts.low).padStart(2, "0")}
+            </strong>
+          </div>
+
+          <div className="risk-progress-track">
+            <span className="risk-progress-low" />
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
 
 
         {/* ===============================
@@ -706,7 +969,7 @@ Demo frontend security report.
 
           <div className="vulnerability-list">
 
-            {demoVulnerabilities.map((finding) => {
+            {vulnerabilities.map((finding) => {
 
               const isOpen =
                 openFinding === finding.id;
@@ -781,6 +1044,184 @@ Demo frontend security report.
 
                   {isOpen && (
                     <div className="vulnerability-details">
+                    {finding.title === "Hardcoded Secret" && (
+  <div className="finding-flow-section">
+
+    <div className="finding-flow-header">
+      <div>
+        <span>SECRET EVIDENCE</span>
+        <h4>Hardcoded Credential Analysis</h4>
+      </div>
+
+      {finding.evidenceLevel && (
+        <strong className="evidence-level-badge">
+          {finding.evidenceLevel
+            .replaceAll("_", " ")
+            .toUpperCase()}
+        </strong>
+      )}
+    </div>
+
+    <div className="finding-detail-box">
+      <span>Sensitive Variable</span>
+      <p>
+        {finding.secretVariable || "Unknown"}
+      </p>
+    </div>
+
+    <div className="finding-detail-box">
+      <span>Secret Format</span>
+      <p>
+        {finding.secretFormat || "Sensitive literal"}
+      </p>
+    </div>
+
+    <div className="finding-detail-box">
+      <span>Entropy</span>
+      <p>
+        {finding.entropy !== null
+          ? finding.entropy
+          : "Not available"}
+      </p>
+    </div>
+
+    <div className="finding-detail-box">
+      <span>Detection Confidence</span>
+      <p>{finding.confidence}%</p>
+    </div>
+
+    <div className="affected-lines-summary">
+      <span>Secret Declaration Line</span>
+
+      <strong>
+        {formatAffectedLines(
+          finding.affectedLines
+        )}
+      </strong>
+    </div>
+
+    {finding.analysisMethod && (
+      <div className="analysis-method-summary">
+        <span>Analysis Method</span>
+
+        <strong>
+          {finding.analysisMethod}
+        </strong>
+      </div>
+    )}
+
+  </div>
+)}
+{finding.title !== "Hardcoded Secret" &&
+  getFindingFlow(finding).length > 0 && (
+  <div className="finding-flow-section">
+
+    <div className="finding-flow-header">
+      <div>
+        <span>DATA-FLOW EVIDENCE</span>
+        <h4>
+          {finding.title
+            ?.toLowerCase()
+            .includes("buffer overflow")
+            ? "Buffer Declaration → Unsafe Write"
+            : "Source → Propagation → Sink"}
+        </h4>
+      </div>
+
+      {finding.evidenceLevel && (
+        <strong className="evidence-level-badge">
+          {finding.evidenceLevel
+            .replaceAll("_", " ")
+            .toUpperCase()}
+        </strong>
+      )}
+    </div>
+
+
+    <div className="finding-flow-list">
+
+      {getFindingFlow(finding).map(
+        (item, flowIndex) => {
+
+          const role =
+            item.role ||
+            item.type ||
+            (flowIndex === 0
+              ? "source"
+              : flowIndex ===
+                  getFindingFlow(finding).length - 1
+                ? "sink"
+                : "propagation");
+
+          return (
+            <div
+              className="finding-flow-step"
+              key={`${finding.id}-${flowIndex}`}
+            >
+
+              <div
+                className={`flow-role flow-role-${String(role).toLowerCase()}`}
+              >
+                {String(role).toUpperCase()}
+              </div>
+
+
+              <div className="flow-step-content">
+
+                <span className="flow-line-label">
+                  {getEvidenceLineLabel(item)}
+                </span>
+
+                {getEvidenceCode(item) && (
+                  <code>
+                    {getEvidenceCode(item)}
+                  </code>
+                )}
+
+              </div>
+
+
+              {flowIndex <
+                getFindingFlow(finding).length -
+                  1 && (
+                <div className="flow-arrow">
+                  ↓
+                </div>
+              )}
+
+            </div>
+          );
+        }
+      )}
+
+    </div>
+
+
+    <div className="affected-lines-summary">
+      <span>
+        Exact Affected Lines
+      </span>
+
+      <strong>
+        {formatAffectedLines(
+          finding.affectedLines
+        )}
+      </strong>
+    </div>
+
+
+    {finding.analysisMethod && (
+      <div className="analysis-method-summary">
+        <span>Analysis Method</span>
+
+        <strong>
+          {finding.analysisMethod}
+        </strong>
+      </div>
+    )}
+
+  </div>
+)}
 
                       <div className="finding-detail-box">
 
@@ -886,9 +1327,12 @@ Demo frontend security report.
 
 
                 <span className="code-risk-badge">
-                  HIGH RISK
-                </span>
-
+  {issuesFound > 0
+    ? `${issuesFound} AFFECTED FINDING${
+        issuesFound > 1 ? "S" : ""
+      }`
+    : "NO AFFECTED CODE"}
+</span>
               </div>
 
 
@@ -903,8 +1347,11 @@ Demo frontend security report.
                     const lineNumber =
                       index + 1;
 
-                    const risky =
-                      lineNumber === 3;
+                    const affectedFinding =
+  affectedLineMap.get(lineNumber);
+
+const risky =
+  Boolean(affectedFinding);
 
                     return (
                       <div
@@ -928,10 +1375,10 @@ Demo frontend security report.
                         </code>
 
                         {risky && (
-                          <span className="code-line-warning">
-                            HIGH
-                          </span>
-                        )}
+  <span className="code-line-warning">
+    {affectedFinding.severity}
+  </span>
+)}
 
                       </div>
                     );
@@ -975,68 +1422,47 @@ Demo frontend security report.
 
 
               <div className="ai-insight-content">
-
                 <div className="ai-insight-item">
-
                   <div className="ai-insight-icon">
                     <Lightbulb size={20} />
                   </div>
 
                   <div>
-                    <h4>
-                      Why this matters
-                    </h4>
-
+                    <h4>Why this matters</h4>
                     <p>
-                      The detected code may accept
-                      user-controlled input without
-                      sufficiently restricting its size
-                      or validating its contents.
+                      {aiSecurityInsight.why_it_matters ||
+                        "AI security insight is not available for this analysis."}
                     </p>
                   </div>
-
                 </div>
 
-
                 <div className="ai-insight-item">
-
                   <div className="ai-insight-icon warning-ai-icon">
                     <CircleAlert size={20} />
                   </div>
 
                   <div>
-                    <h4>
-                      Potential Impact
-                    </h4>
-
+                    <h4>Potential Impact</h4>
                     <p>
-                      Improper input handling can cause
-                      unexpected application behaviour
-                      and may create exploitable security
-                      conditions depending on how the
-                      value is later used.
+                      {aiSecurityInsight.potential_impact ||
+                        "AI impact analysis is not available for this analysis."}
                     </p>
                   </div>
-
                 </div>
-
 
                 <div className="ai-confidence">
-
-                  <span>
-                    Analysis Confidence
-                  </span>
+                  <span>Analysis Confidence</span>
 
                   <div className="ai-confidence-bar">
-                    <span />
+                    <span
+                      style={{
+                        width: `${Math.min(100, Math.max(0, aiInsightConfidence))}%`,
+                      }}
+                    />
                   </div>
 
-                  <strong>
-                    92%
-                  </strong>
-
+                  <strong>{aiInsightConfidence}%</strong>
                 </div>
-
               </div>
 
             </article>
@@ -1052,56 +1478,40 @@ Demo frontend security report.
         =============================== */}
 
         <section className="dashboard-section">
-
           <div className="remediation-panel">
-
             <div className="remediation-icon">
               <WandSparkles size={27} />
             </div>
 
-
             <div className="remediation-content">
-
-              <span>
-                RECOMMENDED REMEDIATION
-              </span>
+              <span>RECOMMENDED REMEDIATION</span>
 
               <h2>
-                Apply Safer Input Handling
+                {aiRemediation.title || "AI Remediation"}
               </h2>
 
               <p>
-                Replace fixed-size unsafe input
-                handling with a safer string-based
-                approach. Validate the input length
-                and reject values that do not meet
-                the expected security requirements.
+                {aiRemediation.summary ||
+                  "AI remediation is not available for this analysis."}
               </p>
 
-
               <div className="remediation-points">
-
-                <span>
-                  <CircleCheck size={18} />
-                  Validate user-controlled input
-                </span>
-
-                <span>
-                  <CircleCheck size={18} />
-                  Apply explicit length boundaries
-                </span>
-
-                <span>
-                  <CircleCheck size={18} />
-                  Handle invalid input safely
-                </span>
-
+                {remediationActions.length > 0 ? (
+                  remediationActions.map((action, index) => (
+                    <span key={`remediation-${index}`}>
+                      <CircleCheck size={18} />
+                      {action}
+                    </span>
+                  ))
+                ) : (
+                  <span>
+                    <CircleAlert size={18} />
+                    No AI remediation actions were returned.
+                  </span>
+                )}
               </div>
-
             </div>
-
           </div>
-
         </section>
 
 
@@ -1144,7 +1554,7 @@ Demo frontend security report.
 
                 <div>
                   <strong>
-                    secure-fix.cpp
+                    {secureFileName}
                   </strong>
 
                   <span>
@@ -1221,28 +1631,20 @@ Demo frontend security report.
   <div className="dashboard-section-heading">
     <div>
       <span>SECURITY FIX COMPARISON</span>
-
-      <h2>
-        Why is the corrected code better?
-      </h2>
+      <h2>Why is the corrected code better?</h2>
     </div>
 
     <p>
-      Compare the original implementation with the recommended secure
-      version and understand why the suggested code is safer.
+      AI-generated comparison of the submitted implementation and the
+      recommended secure version.
     </p>
   </div>
-
-
-  {/* ORIGINAL VS CORRECTED */}
 
   <div className="fix-comparison-grid">
 
     {/* ORIGINAL */}
     <article className="comparison-code-card original-comparison-card">
-
       <div className="comparison-card-header">
-
         <div className="comparison-header-icon original-icon">
           <TriangleAlert size={23} />
         </div>
@@ -1253,80 +1655,65 @@ Demo frontend security report.
         </div>
 
         <span className="comparison-status original-status">
-          NEEDS REVIEW
+          {issuesFound > 0 ? "NEEDS REVIEW" : "SECURE"}
         </span>
-
       </div>
 
-
       <div className="comparison-summary">
-
         <div>
           <span>Security Status</span>
           <strong className="comparison-risk-text">
-            Higher Risk
+            {aiComparison.original_security_status ||
+              (issuesFound > 0 ? "Higher Risk" : "No Confirmed Risk")}
           </strong>
         </div>
 
         <div>
           <span>Detected Issue</span>
-          <strong>
-            Unsafe Input Handling
-          </strong>
+          <strong>{detectedIssueLabel}</strong>
         </div>
 
         <div>
           <span>Severity</span>
           <strong className="comparison-high-text">
-            HIGH
+            {primaryFinding?.severity || "NONE"}
           </strong>
         </div>
-
       </div>
-
 
       <div className="comparison-explanation">
-
         <span>WHY THIS CODE IS AFFECTED</span>
-
         <p>
-          The original implementation accepts input without clearly
-          enforcing a safe input boundary. In a fixed-size memory
-          structure, oversized input may exceed the expected capacity
-          and create unsafe program behaviour.
+          {aiComparison.original_reason ||
+            aiSecurityInsight.why_it_matters ||
+            primaryFinding?.why ||
+            "AI comparison reasoning is not available for this analysis."}
         </p>
-
       </div>
-
 
       <div className="comparison-points">
-
-        <span className="comparison-negative-point">
-          <TriangleAlert size={17} />
-          Input boundary is not clearly controlled
-        </span>
-
-        <span className="comparison-negative-point">
-          <TriangleAlert size={17} />
-          Risky input handling pattern remains present
-        </span>
-
-        <span className="comparison-negative-point">
-          <TriangleAlert size={17} />
-          Additional validation is required
-        </span>
-
+        {vulnerabilities.length > 0 ? (
+          vulnerabilities.slice(0, 3).map((finding) => (
+            <span
+              className="comparison-negative-point"
+              key={`original-${finding.id}`}
+            >
+              <TriangleAlert size={17} />
+              {finding.title} — {finding.line}
+            </span>
+          ))
+        ) : (
+          <span className="comparison-positive-point">
+            <CircleCheck size={17} />
+            No confirmed vulnerable finding was detected.
+          </span>
+        )}
       </div>
-
     </article>
-
-
 
     {/* CORRECTED */}
     <article className="comparison-code-card corrected-comparison-card">
-
       <div className="comparison-card-header">
-
         <div className="comparison-header-icon corrected-icon">
           <ShieldCheck size={23} />
         </div>
@@ -1337,83 +1724,72 @@ Demo frontend security report.
         </div>
 
         <span className="comparison-status corrected-status">
-          RECOMMENDED
+          {aiSecureCode ? "RECOMMENDED" : "AI PENDING"}
         </span>
-
       </div>
 
-
       <div className="comparison-summary">
-
         <div>
           <span>Security Status</span>
           <strong className="comparison-safe-text">
-            Safer
+            {aiComparison.corrected_security_status ||
+              (aiSecureCode ? "Safer" : "Not Available")}
           </strong>
         </div>
 
         <div>
           <span>Risk Handling</span>
-          <strong>
-            Improved
-          </strong>
+          <strong>{aiSecureCode ? "AI Improved" : "Pending"}</strong>
         </div>
 
         <div>
           <span>Recommendation</span>
           <strong className="comparison-safe-text">
-            ACCEPT
+            {aiSecureCode ? "REVIEW & APPLY" : "WAIT"}
           </strong>
         </div>
-
       </div>
-
 
       <div className="comparison-explanation">
-
         <span>WHY THIS CODE IS RECOMMENDED</span>
-
         <p>
-          The corrected implementation uses safer input handling and
-          introduces explicit validation. This reduces the identified
-          risk while preserving the intended behaviour of the original
-          program.
+          {aiComparison.corrected_reason ||
+            aiComparison.security ||
+            aiRemediation.summary ||
+            (primaryFinding?.fix
+              ? `Remediates ${primaryFinding.title} (${primaryFinding.line}) by applying recommended security practices: ${primaryFinding.fix}`
+              : "Remediates detected vulnerabilities and eliminates insecure execution sinks.")}
         </p>
-
       </div>
-
 
       <div className="comparison-points">
-
-        <span className="comparison-positive-point">
-          <CircleCheck size={17} />
-          Safer input handling strategy
-        </span>
-
-        <span className="comparison-positive-point">
-          <CircleCheck size={17} />
-          Explicit validation improves control
-        </span>
-
-        <span className="comparison-positive-point">
-          <CircleCheck size={17} />
-          Original functionality is preserved
-        </span>
-
+        {[aiComparison.security, aiComparison.validation, aiComparison.functionality]
+          .filter(Boolean)
+          .length > 0 ? (
+          [aiComparison.security, aiComparison.validation, aiComparison.functionality]
+            .filter(Boolean)
+            .map((point, index) => (
+              <span
+                className="comparison-positive-point"
+                key={`corrected-${index}`}
+              >
+                <CircleCheck size={17} />
+                {point}
+              </span>
+            ))
+        ) : (
+          <span className="comparison-positive-point">
+            <CircleCheck size={17} />
+            {primaryFinding?.fix || "Remediates detected vulnerabilities with secure code practices."}
+          </span>
+        )}
       </div>
-
     </article>
-
   </div>
 
-
-
-  {/* WHY BETTER */}
-
+  {/* AI REASONING */}
   <div className="why-better-panel">
-
     <div className="why-better-heading">
-
       <div className="why-better-icon">
         <WandSparkles size={25} />
       </div>
@@ -1422,97 +1798,99 @@ Demo frontend security report.
         <span>AI SECURITY REASONING</span>
         <h3>Why choose the corrected code?</h3>
       </div>
-
     </div>
 
-
     <div className="why-better-grid">
-
       <article>
         <span>01</span>
-
         <h4>Security</h4>
-
         <p>
-          The identified unsafe input pattern is replaced with a safer
-          approach that provides better control over received data.
+          {aiComparison.security ||
+            (primaryFinding
+              ? `Eliminates ${primaryFinding.title} security flaw by applying safe coding practices.`
+              : "Maintains safe baseline security.")}
         </p>
       </article>
-
 
       <article>
         <span>02</span>
-
         <h4>Validation</h4>
-
         <p>
-          The recommended implementation validates the input instead of
-          blindly accepting arbitrary data.
+          {aiComparison.validation ||
+            "Input validation and boundary checks enforced on incoming data."}
         </p>
       </article>
-
 
       <article>
         <span>03</span>
-
         <h4>Functionality</h4>
-
         <p>
-          The corrected version is designed to preserve the original
-          purpose of the program while improving its security.
+          {aiComparison.functionality ||
+            "Core business logic, routes, and function signatures preserved."}
         </p>
       </article>
-
 
       <article>
         <span>04</span>
-
         <h4>Maintainability</h4>
-
         <p>
-          Clearer and safer handling makes the implementation easier to
-          understand, review and improve in the future.
+          {aiComparison.maintainability ||
+            "Structured according to clean code and security best practices."}
         </p>
       </article>
 
-    </div>
+      <article>
+        <span>05</span>
+        <h4>Performance</h4>
+        <p>
+          {aiComparison.performance ||
+            "Executes with minimal constant-time overhead for security validation."}
+        </p>
+      </article>
 
+      <article>
+        <span>06</span>
+        <h4>Time Complexity</h4>
+        <p>
+          {aiComparison.original_time_complexity && aiComparison.corrected_time_complexity
+            ? `${aiComparison.original_time_complexity} → ${aiComparison.corrected_time_complexity}${aiComparison.complexity_reason ? ` · ${aiComparison.complexity_reason}` : ""}`
+            : aiComparison.complexity_reason || "O(1) constant-time validation overhead."}
+        </p>
+      </article>
+
+      <article>
+        <span>07</span>
+        <h4>Space Complexity</h4>
+        <p>
+          {aiComparison.original_space_complexity && aiComparison.corrected_space_complexity
+            ? `${aiComparison.original_space_complexity} → ${aiComparison.corrected_space_complexity}`
+            : "O(1) auxiliary space."}
+        </p>
+      </article>
+    </div>
   </div>
 
-
-
   {/* FINAL VERDICT */}
-
   <div className="fix-verdict-panel">
-
     <div className="fix-verdict-icon">
       <ShieldCheck size={28} />
     </div>
 
-
     <div className="fix-verdict-content">
-
       <span>FINAL RECOMMENDATION</span>
-
-      <h3>
-        Corrected Code is the recommended implementation.
-      </h3>
-
+      <h3>AI Security Recommendation</h3>
       <p>
-        It addresses the identified security concern while maintaining
-        the intended behaviour of the submitted code. The recommendation
-        is based on improved input safety, validation and secure coding
-        practice.
+        {aiComparison.final_recommendation ||
+          (primaryFinding
+            ? `Review and apply the recommended fix for ${primaryFinding.title} before production deployment.`
+            : "Code meets security standards and is approved for deployment.")}
       </p>
-
     </div>
-
 
     <div className="fix-verdict-badge">
       <CircleCheck size={18} />
-      BETTER CHOICE
+      {aiSecureCode ? "AI REVIEWED" : "PENDING"}
     </div>
-
   </div>
 
 </section>
@@ -1590,6 +1968,142 @@ Demo frontend security report.
 
       </footer>
 
+      {showAuthModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.78)",
+            backdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            padding: "20px",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#0d131f",
+              border: "1px solid rgba(59, 130, 246, 0.35)",
+              borderRadius: "16px",
+              padding: "32px",
+              maxWidth: "460px",
+              width: "100%",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.8)",
+              position: "relative",
+              textAlign: "center",
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setShowAuthModal(false)}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: "16px",
+                background: "transparent",
+                border: "none",
+                color: "#9ca3af",
+                cursor: "pointer",
+                padding: "6px",
+              }}
+              aria-label="Close modal"
+            >
+              <X size={20} />
+            </button>
+
+            <div
+              style={{
+                width: "56px",
+                height: "56px",
+                borderRadius: "50%",
+                backgroundColor: "rgba(59, 130, 246, 0.12)",
+                color: "#60a5fa",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 18px auto",
+                border: "1px solid rgba(59, 130, 246, 0.25)",
+              }}
+            >
+              <Lock size={28} />
+            </div>
+
+            <h3
+              style={{
+                fontSize: "20px",
+                fontWeight: 700,
+                color: "#ffffff",
+                marginBottom: "10px",
+              }}
+            >
+              Sign In Required
+            </h3>
+
+            <p
+              style={{
+                fontSize: "15px",
+                fontWeight: 500,
+                color: "#e2e8f0",
+                lineHeight: "1.6",
+                marginBottom: "24px",
+              }}
+            >
+              Sign in to download your complete security report.
+            </p>
+
+            <div
+              style={{
+                display: "flex",
+                gap: "12px",
+                justifyContent: "center",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => navigate("/login")}
+                style={{
+                  flex: 1,
+                  padding: "11px 18px",
+                  borderRadius: "8px",
+                  backgroundColor: "#2563eb",
+                  color: "#ffffff",
+                  fontWeight: 600,
+                  fontSize: "14px",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                }}
+              >
+                Log In
+                <ArrowRight size={16} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate("/register")}
+                style={{
+                  flex: 1,
+                  padding: "11px 18px",
+                  borderRadius: "8px",
+                  backgroundColor: "rgba(255, 255, 255, 0.08)",
+                  color: "#e2e8f0",
+                  fontWeight: 600,
+                  fontSize: "14px",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  cursor: "pointer",
+                }}
+              >
+                Register
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

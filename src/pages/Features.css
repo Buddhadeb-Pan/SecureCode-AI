@@ -1519,3 +1519,89 @@
         height: 54px;
     }
 }
+
+
+/* =========================================================
+   FINAL FEATURE CARD EQUAL SIZE FIX
+========================================================= */
+
+.feature-card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+
+/* ALL 6 CARDS SAME WIDTH */
+
+.feature-card,
+.feature-card:nth-child(1),
+.feature-card:nth-child(2),
+.feature-card:nth-child(3),
+.feature-card:nth-child(4),
+.feature-card:nth-child(5),
+.feature-card:nth-child(6),
+.feature-card:last-child {
+    grid-column: auto;
+    width: 100%;
+    min-height: 335px;
+}
+
+
+/* Keep content structure equal */
+
+.feature-card {
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* Description should not force card size */
+
+.feature-card>p {
+    min-height: 70px;
+}
+
+
+/* Explore always stays at bottom */
+
+.feature-explore {
+    position: static;
+    margin-top: auto;
+    padding-top: 16px;
+}
+
+
+/* Tags can wrap safely */
+
+.feature-tags {
+    flex-wrap: wrap;
+}
+
+
+/* TABLET */
+
+@media (max-width: 1100px) {
+    .feature-card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .feature-card,
+    .feature-card:nth-child(1),
+    .feature-card:nth-child(2),
+    .feature-card:nth-child(3),
+    .feature-card:nth-child(4),
+    .feature-card:nth-child(5),
+    .feature-card:nth-child(6),
+    .feature-card:last-child {
+        grid-column: auto;
+    }
+}
+
+
+/* MOBILE */
+
+@media (max-width: 760px) {
+    .feature-card-grid {
+        grid-template-columns: 1fr;
+    }
+}

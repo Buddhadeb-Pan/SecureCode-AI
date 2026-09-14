@@ -1,0 +1,878 @@
+/* ==========================================================================
+   SETTINGS PAGE STYLES (SecureCode AI Dark Theme)
+   ========================================================================== */
+
+.settings-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  color: #f7faff;
+  background:
+    radial-gradient(circle at 85% 15%, rgba(24, 168, 224, 0.14), transparent 32%),
+    radial-gradient(circle at 10% 88%, rgba(54, 85, 220, 0.1), transparent 32%),
+    linear-gradient(135deg, #04060b 0%, #07111c 52%, #04070d 100%);
+}
+
+.settings-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.13;
+  background-image:
+    linear-gradient(rgba(103, 220, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(103, 220, 255, 0.08) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+/* Header Bar */
+.settings-page-header {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  min-height: 84px;
+  padding: 0 clamp(24px, 5vw, 72px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(4, 8, 14, 0.76);
+  backdrop-filter: blur(18px);
+}
+
+.settings-page-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  color: #f7faff;
+  font-size: 1.42rem;
+  font-weight: 720;
+  letter-spacing: -0.035em;
+  text-decoration: none;
+}
+
+.settings-page-brand strong {
+  color: #67d9fa;
+}
+
+.settings-page-brand-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(103, 220, 255, 0.24);
+  border-radius: 13px;
+  color: #67dcff;
+  background: rgba(53, 180, 228, 0.08);
+}
+
+.settings-page-back-link {
+  min-height: 42px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 11px;
+  color: #cbd8e6;
+  background: rgba(255, 255, 255, 0.035);
+  font-size: 0.88rem;
+  font-weight: 650;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.settings-page-back-link:hover,
+.settings-page-back-link:focus-visible {
+  border-color: rgba(103, 220, 255, 0.35);
+  color: #f6fcff;
+  background: rgba(72, 190, 232, 0.09);
+}
+
+/* Content Container */
+.settings-page-content {
+  position: relative;
+  z-index: 1;
+  width: min(940px, calc(100% - 40px));
+  min-height: calc(100vh - 84px);
+  margin: 0 auto;
+  padding: clamp(40px, 6vw, 70px) 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-header-meta {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.settings-section-title {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  font-weight: 750;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.settings-section-desc {
+  margin: 6px 0 0;
+  color: #92a4b8;
+  font-size: 1.02rem;
+  letter-spacing: -0.01em;
+}
+
+/* Tab Navigation */
+.settings-tabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 26px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 14px;
+}
+
+.settings-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #8fa2b6;
+  font-size: 0.92rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-tab-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.settings-tab-btn.is-active {
+  background: rgba(103, 220, 255, 0.1);
+  border-color: rgba(103, 220, 255, 0.35);
+  color: #67dcff;
+  box-shadow: 0 0 16px rgba(103, 220, 255, 0.08);
+}
+
+/* Feedback Alerts */
+.settings-feedback-alert {
+  margin-bottom: 24px;
+  padding: 13px 18px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  animation: settingsFeedbackFadeIn 0.25s ease-out;
+}
+
+@keyframes settingsFeedbackFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settings-feedback-alert--success {
+  border: 1px solid rgba(52, 211, 153, 0.32);
+  background: rgba(16, 185, 129, 0.12);
+  color: #6ee7b7;
+}
+
+.settings-feedback-alert--error {
+  border: 1px solid rgba(248, 113, 113, 0.34);
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+}
+
+.settings-feedback-icon {
+  flex-shrink: 0;
+}
+
+/* Main Cards */
+.settings-card {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(15, 29, 45, 0.94), rgba(7, 16, 27, 0.94));
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  padding: clamp(28px, 5vw, 44px);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.settings-card-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #55d7ff, #4f7cff, transparent);
+  box-shadow: 0 0 24px rgba(85, 215, 255, 0.5);
+}
+
+/* Account Section Hero */
+.settings-account-hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 22px;
+}
+
+.settings-account-heading {
+  min-width: 0;
+}
+
+.settings-eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: #67dcff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.settings-account-heading h2 {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #ffffff;
+  font-size: clamp(1.6rem, 3.5vw, 2.3rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.settings-account-heading p {
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+  color: #98a9ba;
+  font-size: 0.95rem;
+}
+
+.settings-account-badge {
+  min-height: 34px;
+  padding: 0 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.settings-account-badge.is-active {
+  border: 1px solid rgba(52, 211, 153, 0.26);
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.settings-account-badge.is-inactive {
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.settings-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+/* Account Details Grid */
+.settings-section-header {
+  margin: 0 0 16px;
+  color: #67dcff;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.settings-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+
+.settings-detail-item {
+  min-width: 0;
+  min-height: 104px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.026);
+}
+
+.settings-detail-icon {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  color: #67d9fa;
+  background: rgba(66, 183, 229, 0.08);
+}
+
+.settings-detail-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-detail-content dt {
+  margin-bottom: 6px;
+  color: #8191a3;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.settings-detail-content dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #edf5fc;
+  font-size: 0.96rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.settings-name-display-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.settings-btn-edit-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid rgba(103, 220, 255, 0.28);
+  border-radius: 8px;
+  background: rgba(67, 185, 230, 0.08);
+  color: #67dcff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-btn-edit-inline:hover {
+  background: rgba(67, 185, 230, 0.2);
+  border-color: rgba(103, 220, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.settings-inline-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.settings-edit-input {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 13px;
+  border-radius: 9px;
+  border: 1px solid rgba(103, 220, 255, 0.35);
+  background: rgba(5, 12, 22, 0.85);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.settings-edit-input:focus {
+  border-color: #67dcff;
+  box-shadow: 0 0 12px rgba(103, 220, 255, 0.25);
+}
+
+.settings-edit-input.has-error {
+  border-color: #f87171;
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.25);
+}
+
+.settings-edit-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.settings-btn-save-sm {
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(103, 220, 255, 0.4);
+  background: linear-gradient(135deg, #1fa5e0 0%, #1562b8 100%);
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-btn-save-sm:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(31, 165, 224, 0.4);
+}
+
+.settings-btn-cancel-sm {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd8e6;
+  font-size: 0.82rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-btn-cancel-sm:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.settings-readonly-hint {
+  display: inline-block;
+  margin-top: 5px;
+  color: #6a7c90;
+  font-size: 0.74rem;
+  font-style: italic;
+}
+
+/* ==========================================================================
+   SECURITY SECTION (CHANGE PASSWORD & LOGOUT)
+   ========================================================================== */
+
+.settings-subcard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-subcard-header h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.settings-subcard-header p {
+  margin: 4px 0 0;
+  color: #8fa2b6;
+  font-size: 0.9rem;
+}
+
+.settings-password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 480px;
+}
+
+.settings-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.settings-form-label {
+  color: #c9d8e8;
+  font-size: 0.84rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.settings-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.settings-text-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 42px 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(5, 12, 22, 0.75);
+  color: #ffffff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.settings-text-input:focus {
+  border-color: #67dcff;
+  background: rgba(5, 12, 22, 0.95);
+  box-shadow: 0 0 14px rgba(103, 220, 255, 0.25);
+}
+
+.settings-text-input.has-error {
+  border-color: #f87171;
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.25);
+}
+
+.settings-pwd-toggle {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: #728498;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.2s ease;
+}
+
+.settings-pwd-toggle:hover {
+  color: #67dcff;
+}
+
+.settings-field-error {
+  color: #fca5a5;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.settings-password-policy {
+  color: #6f8296;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.settings-btn-save-main {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(103, 220, 255, 0.4);
+  background: linear-gradient(135deg, #1fa5e0 0%, #1562b8 100%);
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(15, 98, 184, 0.35);
+  transition: all 0.2s ease;
+}
+
+.settings-btn-save-main:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(31, 165, 224, 0.45);
+}
+
+.settings-btn-save-main:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Logout Card */
+.settings-logout-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 24px;
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  border-radius: 18px;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.settings-logout-info h4 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.settings-logout-info p {
+  margin: 4px 0 0;
+  color: #a4b3c4;
+  font-size: 0.86rem;
+}
+
+.settings-btn-logout {
+  flex-shrink: 0;
+  min-height: 42px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 11px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-btn-logout:hover {
+  background: rgba(239, 68, 68, 0.24);
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25);
+}
+
+/* ==========================================================================
+   DANGER ZONE SECTION
+   ========================================================================== */
+
+.settings-divider--danger {
+  background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.3), transparent);
+}
+
+.settings-danger-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 26px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.07) 0%, rgba(185, 28, 28, 0.03) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.settings-danger-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-danger-eyebrow {
+  color: #f87171;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.settings-danger-content-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.settings-danger-info h4 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.settings-danger-info p {
+  margin: 4px 0 0;
+  color: #94a3b8;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.settings-btn-delete-account {
+  flex-shrink: 0;
+  min-height: 42px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 11px;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-btn-delete-account:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  border-color: rgba(239, 68, 68, 0.7);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px rgba(239, 68, 68, 0.35);
+}
+
+/* Loading & Error States */
+.settings-state-card {
+  max-width: 540px;
+  margin: 40px auto;
+  padding: 48px 32px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(15, 29, 45, 0.94), rgba(7, 16, 27, 0.94));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.settings-state-card h2 {
+  margin: 18px 0 8px;
+  color: #ffffff;
+  font-size: 1.45rem;
+}
+
+.settings-state-card p {
+  margin: 0;
+  color: #91a3b6;
+  line-height: 1.6;
+}
+
+.settings-state-card--error > svg {
+  color: #fda4af;
+}
+
+.settings-state-card button {
+  min-height: 40px;
+  margin-top: 20px;
+  padding: 0 20px;
+  border: 1px solid rgba(103, 220, 255, 0.28);
+  border-radius: 11px;
+  cursor: pointer;
+  color: #eafaff;
+  background: rgba(45, 176, 222, 0.12);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.settings-loading-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid rgba(103, 220, 255, 0.15);
+  border-top-color: #67dcff;
+  border-radius: 50%;
+  animation: settingsSpin 0.8s linear infinite;
+}
+
+@keyframes settingsSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .settings-page-header {
+    min-height: 74px;
+    padding: 0 20px;
+  }
+
+  .settings-page-brand {
+    font-size: 1.15rem;
+  }
+
+  .settings-page-brand-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .settings-page-back-link {
+    width: 40px;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .settings-page-back-link svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .settings-page-content {
+    width: min(100% - 28px, 940px);
+    min-height: calc(100vh - 74px);
+    padding: 30px 0;
+  }
+
+  .settings-card {
+    padding: 26px 18px;
+    border-radius: 20px;
+    gap: 22px;
+  }
+
+  .settings-account-hero {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .settings-account-badge {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .settings-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-logout-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .settings-btn-logout {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .settings-danger-content-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .settings-btn-delete-account {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .settings-password-form {
+    max-width: 100%;
+  }
+
+  .settings-btn-save-main {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-tabs {
+    width: 100%;
+  }
+
+  .settings-tab-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 9px 12px;
+    font-size: 0.88rem;
+  }
+}

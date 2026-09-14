@@ -1,0 +1,46 @@
+.profile-avatar {
+  --profile-avatar-size: 46px;
+  width: var(--profile-avatar-size);
+  height: var(--profile-avatar-size);
+  flex: 0 0 var(--profile-avatar-size);
+  display: inline-grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(103, 220, 255, 0.34);
+  border-radius: 15px;
+  color: #baf2ff;
+  background:
+    linear-gradient(145deg, rgba(58, 195, 238, 0.22), rgba(46, 92, 204, 0.12)),
+    #0a1725;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 24px rgba(1, 13, 25, 0.28);
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.profile-avatar--small {
+  --profile-avatar-size: 36px;
+  border-radius: 11px;
+  font-size: 0.72rem;
+}
+
+.profile-avatar--large {
+  --profile-avatar-size: 96px;
+  border-radius: 28px;
+  font-size: 1.75rem;
+}
+
+.profile-avatar-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+@media (max-width: 600px) {
+  .profile-avatar--large {
+    --profile-avatar-size: 82px;
+    border-radius: 24px;
+    font-size: 1.5rem;
+  }
+}

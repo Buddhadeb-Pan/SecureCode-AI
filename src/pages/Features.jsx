@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import {
   ShieldCheck,
@@ -20,18 +20,23 @@ import {
   Download,
   RotateCcw,
   ChevronDown,
+  X,
 } from "lucide-react";
 
+import { API_BASE_URL, authFetch } from "../config/api.js";
 import "./Features.css";
 
 function Features() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [pageReady, setPageReady] = useState(false);
   const [code, setCode] = useState("");
   const [fileName, setFileName] = useState("untitled.code");
   const [language, setLanguage] = useState("Auto Detect");
   const [isAnalysing, setIsAnalysing] = useState(false);
   const [showResult, setShowResult] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authModalMsg, setAuthModalMsg] = useState("");
 
   const fileInputRef = useRef(null);
 
@@ -42,6 +47,19 @@ function Features() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (!pageReady) return;
+
+    if (location.hash === "#review") {
+      const reviewEl = document.getElementById("review");
+      if (reviewEl) {
+        reviewEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [pageReady, location.hash]);
 
   const detectLanguage = (name) => {
     const extension = name.split(".").pop()?.toLowerCase();
@@ -94,45 +112,75 @@ function Features() {
   };
 
   const handleAnalyse = async () => {
-  if (!code.trim()) return;
+    if (!code.trim()) return;
 
-  try {
-    setIsAnalysing(true);
+    try {
+      setIsAnalysing(true);
 
-    const response = await fetch("http://127.0.0.1:8000/analyze", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        code: code,
-        file_name: fileName,
-        language: language,
-      }),
-    });
+      const response = await authFetch(`${API_BASE_URL}/analyze`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code: code,
+          file_name: fileName,
+          language: language,
+        }),
+      });
 
-    if (!response.ok) {
-      throw new Error("Backend analysis failed");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (
+          response.status === 403 ||
+          response.headers.get("X-Auth-Required") === "true" ||
+          (errorData.detail && errorData.detail.includes("free security analysis"))
+        ) {
+          setIsAnalysing(false);
+          setAuthModalMsg(
+            errorData.detail ||
+              "You've used your free security analysis. Sign in or create an account to continue analyzing code."
+          );
+          setShowAuthModal(true);
+          return;
+        }
+        throw new Error(errorData.detail || "Backend analysis failed");
+      }
+
+      const result = await response.json();
+
+      if (result.guest_trial_token) {
+        localStorage.setItem("guest_trial_token", result.guest_trial_token);
+      }
+
+      setIsAnalysing(false);
+
+      navigate("/dashboard", {
+        state: {
+          code: code,
+          fileName: fileName,
+          language: language,
+          analysisResult: result,
+        },
+      });
+    } catch (error) {
+      console.error("Analysis error:", error);
+      setIsAnalysing(false);
+      if (
+        error?.message &&
+        (error.message.includes("free security analysis") ||
+          error.message.includes("403") ||
+          error.message.includes("free analysis"))
+      ) {
+        setAuthModalMsg(
+          "You've used your free security analysis. Sign in or create an account to continue analyzing code."
+        );
+        setShowAuthModal(true);
+      } else {
+        alert(error?.message || "Backend server is not responding.");
+      }
     }
-
-    const result = await response.json();
-
-    setIsAnalysing(false);
-
-    navigate("/dashboard", {
-      state: {
-        code: code,
-        fileName: fileName,
-        language: language,
-        analysisResult: result,
-      },
-    });
-  } catch (error) {
-    console.error("Analysis error:", error);
-    setIsAnalysing(false);
-    alert("Backend server is not responding.");
-  }
-};
+  };
 
   const lineCount = Math.max(code.split("\n").length, 12);
 
@@ -217,7 +265,7 @@ function Features() {
 
         {/* FEATURE CARDS */}
 
-        <section className="feature-showcase">
+        <section className="feature-showcase" id="features">
           <div className="feature-section-heading">
             <div>
               <span>Platform Capabilities</span>
@@ -250,10 +298,10 @@ function Features() {
                 <span>Auto Detect</span>
               </div>
 
-              <button type="button" className="feature-explore">
+              <Link to="/features/smart-code-analysis" className="feature-explore">
                 Explore
                 <ArrowRight size={16} />
-              </button>
+              </Link>
             </article>
 
             <article className="feature-card">
@@ -280,10 +328,10 @@ function Features() {
                 </span>
               </div>
 
-              <button type="button" className="feature-explore">
+              <Link to="/features/vulnerability-detection" className="feature-explore">
                 Explore
                 <ArrowRight size={16} />
-              </button>
+              </Link>
             </article>
 
             <article className="feature-card">
@@ -314,10 +362,10 @@ function Features() {
                 </span>
               </div>
 
-              <button type="button" className="feature-explore">
+              <Link to="/features/risk-severity" className="feature-explore">
                 Explore
                 <ArrowRight size={16} />
-              </button>
+              </Link>
             </article>
 
             <article className="feature-card">
@@ -340,13 +388,15 @@ function Features() {
                 <strong>Secure Fix</strong>
               </div>
 
-              <button type="button" className="feature-explore">
+              <Link to="/features/secure-fix-guidance" className="feature-explore">
                 Explore
                 <ArrowRight size={16} />
-              </button>
+              </Link>
             </article>
 
-            <article className="feature-card feature-card-wide">
+            {/* 05 - SECURITY REPORT */}
+
+            <article className="feature-card">
               <div className="feature-card-icon">
                 <FileChartColumn size={25} />
               </div>
@@ -377,17 +427,46 @@ function Features() {
                 </div>
               </div>
 
-              <button type="button" className="feature-explore">
+              <Link to="/features/security-report" className="feature-explore">
                 Explore
                 <ArrowRight size={16} />
-              </button>
+              </Link>
+            </article>
+
+            {/* 06 - VERIFIED CODE OPTIMIZATION */}
+
+            <article className="feature-card">
+              <div className="feature-card-icon">
+                <CheckCircle2 size={25} />
+              </div>
+
+              <span className="feature-number">06</span>
+
+              <h3>Verified Code Optimization</h3>
+
+              <p>
+                Compare original and corrected code, verify security
+                improvements and understand why the recommended version
+                is safer and better.
+              </p>
+
+              <div className="feature-tags">
+                <span>Re-scan</span>
+                <span>Verification</span>
+                <span>Optimized</span>
+              </div>
+
+              <Link to="/features/code-optimization" className="feature-explore">
+                Explore
+                <ArrowRight size={16} />
+              </Link>
             </article>
           </div>
         </section>
 
         {/* CODE WORKSPACE */}
 
-        <section className="code-workspace-section">
+        <section className="code-workspace-section" id="review">
           <div className="workspace-heading">
             <div className="workspace-heading-icon">
               <Code2 size={24} />
@@ -676,6 +755,143 @@ if (user.length() > MAX_ALLOWED_LENGTH) {
           SecureCode AI · Intelligent Code Security Workspace
         </footer>
       </div>
+
+      {showAuthModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.78)",
+            backdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            padding: "20px",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#0d131f",
+              border: "1px solid rgba(245, 158, 11, 0.35)",
+              borderRadius: "16px",
+              padding: "32px",
+              maxWidth: "460px",
+              width: "100%",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.8)",
+              position: "relative",
+              textAlign: "center",
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setShowAuthModal(false)}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: "16px",
+                background: "transparent",
+                border: "none",
+                color: "#9ca3af",
+                cursor: "pointer",
+                padding: "6px",
+              }}
+              aria-label="Close modal"
+            >
+              <X size={20} />
+            </button>
+
+            <div
+              style={{
+                width: "56px",
+                height: "56px",
+                borderRadius: "50%",
+                backgroundColor: "rgba(245, 158, 11, 0.12)",
+                color: "#f59e0b",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 18px auto",
+                border: "1px solid rgba(245, 158, 11, 0.25)",
+              }}
+            >
+              <ShieldCheck size={30} />
+            </div>
+
+            <h3
+              style={{
+                fontSize: "20px",
+                fontWeight: 700,
+                color: "#ffffff",
+                marginBottom: "10px",
+              }}
+            >
+              Free Analysis Limit Reached
+            </h3>
+
+            <p
+              style={{
+                fontSize: "14px",
+                color: "#94a3b8",
+                lineHeight: "1.6",
+                marginBottom: "24px",
+              }}
+            >
+              {authModalMsg ||
+                "You've used your free security analysis. Sign in or create an account to continue analyzing code."}
+            </p>
+
+            <div
+              style={{
+                display: "flex",
+                gap: "12px",
+                justifyContent: "center",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => navigate("/login")}
+                style={{
+                  flex: 1,
+                  padding: "11px 18px",
+                  borderRadius: "8px",
+                  backgroundColor: "#2563eb",
+                  color: "#ffffff",
+                  fontWeight: 600,
+                  fontSize: "14px",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                }}
+              >
+                Sign In
+                <ArrowRight size={16} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate("/register")}
+                style={{
+                  flex: 1,
+                  padding: "11px 18px",
+                  borderRadius: "8px",
+                  backgroundColor: "rgba(255, 255, 255, 0.08)",
+                  color: "#e2e8f0",
+                  fontWeight: 600,
+                  fontSize: "14px",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  cursor: "pointer",
+                }}
+              >
+                Create Account
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

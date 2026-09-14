@@ -2510,3 +2510,135 @@
         font-size: 1rem;
     }
 }
+
+
+/* =========================================
+   DATA FLOW EVIDENCE
+========================================= */
+
+.finding-flow-section {
+    width: 100%;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    background: rgba(7, 15, 28, 0.62);
+}
+
+.finding-flow-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.finding-flow-header span {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 11px;
+    letter-spacing: 1.6px;
+    opacity: 0.65;
+}
+
+.finding-flow-header h4 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.evidence-level-badge {
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.finding-flow-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.finding-flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.flow-role {
+    min-width: 112px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.flow-role-source {
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.flow-role-propagation {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.flow-role-sink {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.flow-step-content {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.flow-line-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    opacity: 0.65;
+}
+
+.flow-step-content code {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.28);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.flow-arrow {
+    margin: 10px 0 10px 48px;
+    font-size: 21px;
+    opacity: 0.55;
+}
+
+.affected-lines-summary,
+.analysis-method-summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.affected-lines-summary span,
+.analysis-method-summary span {
+    font-size: 12px;
+    opacity: 0.65;
+}
+
+.affected-lines-summary strong,
+.analysis-method-summary strong {
+    text-align: right;
+    font-size: 12px;
+}
+
+@media (max-width: 700px) {
+    .finding-flow-header,
+    .affected-lines-summary,
+    .analysis-method-summary {
+        flex-direction: column;
+    }
+}

@@ -5,11 +5,13 @@ single-call external AI contextual review, and professional PDF report export.
 Fully compatible with existing React frontend.
 """
 
+import os
 import re
 import time
 import uuid
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
+from urllib.parse import urlparse
 
 from fastapi import FastAPI, HTTPException, Response, Request, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,14 +49,38 @@ app = FastAPI(
     version="2.0.0",
 )
 
+# Allowed CORS origins
+allowed_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://buddhadeb-pan.github.io",
+]
+
+# Read production origins from CORS_ALLOWED_ORIGINS environment variable
+cors_env = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
+if cors_env:
+    for item in cors_env.split(","):
+        cleaned = item.strip().rstrip("/")
+        if cleaned:
+            parsed = urlparse(cleaned)
+            origin = f"{parsed.scheme}://{parsed.netloc}" if parsed.scheme and parsed.netloc else cleaned
+            if origin and origin not in allowed_origins:
+                allowed_origins.append(origin)
+
+# Read origin from FRONTEND_URL environment variable if provided
+frontend_url_env = os.getenv("FRONTEND_URL", "").strip()
+if frontend_url_env:
+    parsed = urlparse(frontend_url_env)
+    if parsed.scheme and parsed.netloc:
+        fe_origin = f"{parsed.scheme}://{parsed.netloc}"
+        if fe_origin not in allowed_origins:
+            allowed_origins.append(fe_origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

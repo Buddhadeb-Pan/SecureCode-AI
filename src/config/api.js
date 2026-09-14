@@ -1,10 +1,26 @@
 /**
  * Centralized API configuration and authenticated fetch helper for SecureCode AI.
- * Falls back to http://127.0.0.1:8000 if VITE_API_BASE_URL is not configured.
+ *
+ * Precedence:
+ * 1. import.meta.env.VITE_API_BASE_URL (if provided via environment or mode-specific .env file)
+ * 2. Production default: https://securecode-ai-api.onrender.com
+ * 3. Development default: http://127.0.0.1:8000
  */
 
-export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+const getApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (typeof envUrl === "string" && envUrl.trim()) {
+    return envUrl.trim().replace(/\/+$/, "");
+  }
+
+  if (import.meta.env.PROD || import.meta.env.MODE === "production") {
+    return "https://securecode-ai-api.onrender.com";
+  }
+
+  return "http://127.0.0.1:8000";
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 export function getStoredToken() {
   const token = localStorage.getItem("token");

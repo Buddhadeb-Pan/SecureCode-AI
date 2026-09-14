@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { AlertTriangle, Eye, EyeOff, AlertCircle } from "lucide-react";
 import "./DeleteAccountModal.css";
@@ -15,7 +15,7 @@ function DeleteAccountModal({
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState("");
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (!isDeleting) {
       setCurrentPassword("");
       setConfirmationInput("");
@@ -23,7 +23,7 @@ function DeleteAccountModal({
       setFormError("");
       onClose();
     }
-  };
+  }, [isDeleting, onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -42,7 +42,7 @@ function DeleteAccountModal({
       document.body.style.overflow = originalOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, isDeleting, onClose]);
+  }, [isOpen, isDeleting, handleClose]);
 
   if (!isOpen) {
     return null;

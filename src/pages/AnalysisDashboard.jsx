@@ -26,7 +26,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import { API_BASE_URL, authFetch, getStoredToken } from "../config/api.js";
+import { API_BASE_URL, getStoredToken } from "../config/api.js";
 import "./Dashboard.css";
 
 
@@ -417,14 +417,7 @@ vulnerabilities.forEach((finding) => {
 
 
   const handleDownloadReport = async () => {
-    const rawToken = localStorage.getItem("token");
-    const token =
-      rawToken &&
-      rawToken !== "undefined" &&
-      rawToken !== "null" &&
-      rawToken.trim().length > 0
-        ? rawToken.trim()
-        : null;
+    const token = getStoredToken();
 
     // 1. If user is NOT logged in:
     // - Do not call the PDF endpoint

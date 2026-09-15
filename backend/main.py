@@ -84,7 +84,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["X-Auth-Required", "X-Guest-Trial-Token"],
+    expose_headers=["X-Auth-Required", "X-Guest-Trial-Token", "Content-Disposition"],
 )
 
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])

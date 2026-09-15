@@ -26,7 +26,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import { API_BASE_URL, getStoredToken } from "../config/api.js";
+import { API_BASE_URL, authFetch, getStoredToken } from "../config/api.js";
 import "./Dashboard.css";
 
 
@@ -421,7 +421,6 @@ vulnerabilities.forEach((finding) => {
 
     // 1. If user is NOT logged in:
     // - Do not call the PDF endpoint
-    // - Do not show the raw backend alert
     // - Show the professional modal
     if (!token) {
       setShowAuthModal(true);
@@ -429,17 +428,14 @@ vulnerabilities.forEach((finding) => {
     }
 
     // 2. If user IS logged in:
-    // - Send the JWT access token with the report request:
-    //   Authorization: Bearer <access_token>
-    // - PDF download should work normally
+    // - Send the JWT access token with the report request via central authFetch
+    // - Preserves credentials: "include" and handles auto-refresh on 401
     try {
-      const response = await fetch(`${API_BASE_URL}/reports/pdf`, {
+      const response = await authFetch(`${API_BASE_URL}/reports/pdf`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
-        credentials: "include",
         body: JSON.stringify({
           file_name: fileName,
           language: language,
@@ -457,35 +453,30 @@ vulnerabilities.forEach((finding) => {
         }),
       });
 
-      // If token expired or invalid (401), open login/register modal instead of raw alert
-      if (response.status === 401) {
-        localStorage.removeItem("token");
+      // 3. Error handling:
+      // 401 / 403: show authentication/login-related modal
+      if (response.status === 401 || response.status === 403) {
         setShowAuthModal(true);
         return;
       }
 
-      if (!response.ok) {
-        let detailMsg = "";
-        try {
-          const errorData = await response.json();
-          detailMsg = errorData?.detail || "";
-        } catch (_) {}
-
-        if (detailMsg && detailMsg.toLowerCase().includes("authentication")) {
-          localStorage.removeItem("token");
-          setShowAuthModal(true);
-          return;
-        }
-
-        throw new Error(
-          detailMsg || `PDF generation failed with status ${response.status}`
-        );
+      // 500: show report generation failure
+      if (response.status >= 500) {
+        alert("Failed to generate PDF report on the server. Please try again later.");
+        return;
       }
 
+      // Other non-200 errors
+      if (!response.ok) {
+        alert("Unable to generate PDF report. Please verify your analysis data and try again.");
+        return;
+      }
+
+      // 4. Successful PDF download
       const pdfBlob = await response.blob();
       const downloadUrl = URL.createObjectURL(pdfBlob);
       const anchor = document.createElement("a");
-      const safeFileName = fileName
+      const safeFileName = (fileName || "SecureCode-AI")
         .replace(/\.[^/.]+$/, "")
         .replace(/[^a-zA-Z0-9-_]/g, "-");
 
@@ -494,21 +485,26 @@ vulnerabilities.forEach((finding) => {
       document.body.appendChild(anchor);
       anchor.click();
       document.body.removeChild(anchor);
-      URL.revokeObjectURL(downloadUrl);
+      setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
     } catch (error) {
       console.error("Unable to download PDF report:", error);
-      // Suppress any raw auth credential errors from alert
       if (
-        error?.message &&
-        (error.message.toLowerCase().includes("credentials") ||
-          error.message.toLowerCase().includes("authentication") ||
-          error.message.includes("401"))
+        error?.status === 401 ||
+        error?.status === 403 ||
+        (error?.message &&
+          (error.message.toLowerCase().includes("credentials") ||
+            error.message.toLowerCase().includes("authentication") ||
+            error.message.includes("401") ||
+            error.message.includes("403")))
       ) {
         setShowAuthModal(true);
+      } else if (
+        error?.name === "TypeError" ||
+        (error?.message && error.message.toLowerCase().includes("fetch"))
+      ) {
+        alert("Unable to connect to the security server. Please check your network connection.");
       } else {
-        alert(
-          "PDF report could not be generated. Please make sure the backend is running."
-        );
+        alert("An unexpected error occurred while generating the PDF report. Please try again.");
       }
     }
   };

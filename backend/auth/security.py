@@ -276,9 +276,14 @@ def hash_reset_token(raw_token: str) -> str:
 
 def get_reset_url(raw_token: str) -> str:
     """
-    Constructs the frontend password reset URL for local development / testing.
-    Format: http://localhost:5173/reset-password?token=<token>
+    Constructs the frontend password reset URL for production and local environments.
+    Handles trailing slashes and whitespace in FRONTEND_URL cleanly.
+    Expected production format:
+    https://buddhadeb-pan.github.io/SecureCode-AI/reset-password?token=<token>
     """
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
-    return f"{frontend_url}/reset-password?token={raw_token}"
+    base_url = (os.getenv("FRONTEND_URL") or "http://localhost:5173").strip().rstrip("/")
+    if not base_url:
+        base_url = "http://localhost:5173"
+    token_param = (raw_token or "").strip()
+    return f"{base_url}/reset-password?token={token_param}"
 

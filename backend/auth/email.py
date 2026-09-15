@@ -10,6 +10,7 @@ import socket
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Tuple, Optional, Dict, Any
+import requests
 from dotenv import load_dotenv
 
 # Ensure backend/.env can be located and reloaded dynamically
@@ -56,6 +57,133 @@ def is_smtp_configured() -> bool:
     """
     config = get_smtp_config()
     return bool(config["host"] and config["port"] and config["username"] and config["password"])
+
+
+def get_brevo_api_config() -> Dict[str, Any]:
+    """
+    Dynamically retrieves Brevo HTTPS API configuration from environment.
+    Never hardcodes or exposes sensitive credentials.
+    """
+    if os.path.exists(_ENV_PATH):
+        load_dotenv(dotenv_path=_ENV_PATH, override=True)
+    else:
+        load_dotenv(override=True)
+
+    api_key = os.getenv("BREVO_API_KEY", "").strip()
+    email_from = os.getenv("EMAIL_FROM", "").strip()
+
+    if not email_from:
+        smtp_user = os.getenv("SMTP_USERNAME", "").strip()
+        email_from = smtp_user if ("@" in smtp_user) else "no-reply@securecode.ai"
+
+    return {
+        "api_key": api_key,
+        "from": email_from,
+    }
+
+
+def is_brevo_api_configured() -> bool:
+    """
+    Returns True if BREVO_API_KEY is populated.
+    """
+    config = get_brevo_api_config()
+    return bool(config["api_key"])
+
+
+def send_email_brevo_api(
+    to_email: str,
+    subject: str,
+    text_content: str,
+    html_content: str,
+    is_reset_email: bool = True,
+) -> Tuple[bool, Optional[str]]:
+    """
+    Sends an email via Brevo HTTPS Transactional Email API (POST https://api.brevo.com/v3/smtp/email).
+    Bypasses outbound SMTP port 587 blocking on Render Free.
+    Safely logs diagnostic messages without exposing API keys or tokens.
+
+    Returns:
+        (success: bool, error_message: Optional[str])
+    """
+    config = get_brevo_api_config()
+    api_key = config["api_key"]
+    email_from = config["from"]
+
+    if not api_key:
+        safe_msg = "Brevo API key is not configured"
+        print(f"[EMAIL ERROR] {safe_msg}")
+        return False, safe_msg
+
+    if not email_from:
+        safe_msg = "EMAIL_FROM is not configured in environment"
+        print(f"[EMAIL ERROR] {safe_msg}")
+        return False, safe_msg
+
+    print("[EMAIL] Brevo HTTPS API configuration loaded")
+    if is_reset_email:
+        print("[EMAIL] Sending reset email via Brevo HTTPS API to registered user")
+    else:
+        print("[EMAIL] Sending test email via Brevo HTTPS API")
+
+    headers = {
+        "api-key": api_key,
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    payload = {
+        "sender": {
+            "name": "SecureCode AI",
+            "email": email_from,
+        },
+        "to": [
+            {
+                "email": to_email,
+            }
+        ],
+        "subject": subject,
+        "htmlContent": html_content,
+        "textContent": text_content,
+    }
+
+    try:
+        response = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers=headers,
+            json=payload,
+            timeout=10,
+        )
+
+        if 200 <= response.status_code < 300:
+            if is_reset_email:
+                print("[EMAIL] Reset email sent successfully via Brevo HTTPS API")
+            else:
+                print("[EMAIL] Test email sent successfully via Brevo HTTPS API")
+            return True, None
+        else:
+            safe_detail = f"status {response.status_code}"
+            try:
+                err_data = response.json()
+                if isinstance(err_data, dict) and "message" in err_data:
+                    safe_detail += f": {err_data['message']}"
+            except Exception:
+                pass
+            safe_err = f"Brevo HTTPS API delivery failure ({safe_detail})"
+            print(f"[EMAIL ERROR] {safe_err}")
+            return False, safe_err
+
+    except requests.exceptions.Timeout:
+        safe_err = "Brevo API request timed out"
+        print(f"[EMAIL ERROR] {safe_err}")
+        return False, safe_err
+    except requests.exceptions.RequestException as req_err:
+        safe_err = f"Brevo API connection failure: {type(req_err).__name__}"
+        print(f"[EMAIL ERROR] {safe_err}")
+        return False, safe_err
+    except Exception as err:
+        safe_err = f"Brevo API delivery error: {type(err).__name__}"
+        print(f"[EMAIL ERROR] {safe_err}")
+        return False, safe_err
 
 
 def mask_email(email: str) -> str:
@@ -284,6 +412,41 @@ def send_email_smtp(
         return False, safe_err
 
 
+def dispatch_email(
+    to_email: str,
+    subject: str,
+    text_content: str,
+    html_content: str,
+    is_reset_email: bool = True,
+) -> Tuple[bool, Optional[str]]:
+    """
+    Unified email dispatcher.
+    Prioritizes Brevo HTTPS API (required for Render Free production where SMTP is blocked).
+    Falls back cleanly to Brevo SMTP for local development if BREVO_API_KEY is not set.
+    """
+    if is_brevo_api_configured():
+        return send_email_brevo_api(
+            to_email=to_email,
+            subject=subject,
+            text_content=text_content,
+            html_content=html_content,
+            is_reset_email=is_reset_email,
+        )
+    elif is_smtp_configured():
+        print("[EMAIL] BREVO_API_KEY not configured; falling back to local Brevo SMTP transport")
+        return send_email_smtp(
+            to_email=to_email,
+            subject=subject,
+            text_content=text_content,
+            html_content=html_content,
+            is_reset_email=is_reset_email,
+        )
+    else:
+        safe_msg = "No email provider configured (neither BREVO_API_KEY nor SMTP credentials found)"
+        print(f"[EMAIL ERROR] {safe_msg}")
+        return False, safe_msg
+
+
 def send_password_reset_email(
     to_email: str,
     reset_url: str,
@@ -291,6 +454,7 @@ def send_password_reset_email(
 ) -> Tuple[bool, Optional[str]]:
     """
     Prepares and dispatches a branded password reset email to the specified user email.
+    Uses Brevo HTTPS API in production, falling back to Brevo SMTP locally.
     Never crashes caller; returns (success, error_message).
     """
     subject = "Reset Your SecureCode AI Password"
@@ -298,7 +462,7 @@ def send_password_reset_email(
         reset_url=reset_url,
         expire_minutes=expire_minutes,
     )
-    return send_email_smtp(
+    return dispatch_email(
         to_email=to_email,
         subject=subject,
         text_content=text_body,
@@ -309,31 +473,31 @@ def send_password_reset_email(
 
 def send_test_email(to_email: str) -> Tuple[bool, Optional[str]]:
     """
-    Sends a test verification email to confirm Brevo SMTP connection and delivery.
+    Sends a test verification email to confirm email delivery via Brevo HTTPS API or SMTP.
     """
-    subject = "SecureCode AI — Brevo SMTP Connection Test"
+    subject = "SecureCode AI — Brevo Delivery Test"
     text_content = (
         "Hello,\n\n"
-        "This is a test email sent from SecureCode AI via Brevo SMTP.\n"
-        "If you received this message, your Brevo SMTP configuration (STARTTLS on port 587) is operating properly!\n\n"
+        "This is a test email sent from SecureCode AI via Brevo.\n"
+        "If you received this message, your Brevo email delivery configuration is operating properly!\n\n"
         "Best regards,\n"
         "SecureCode AI Security Team\n"
     )
     html_content = """<!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8"><title>SMTP Test</title></head>
+<head><meta charset="UTF-8"><title>Delivery Test</title></head>
 <body style="margin:0;padding:24px;background-color:#0b0f19;font-family:sans-serif;color:#e2e8f0;">
   <div style="max-width:500px;margin:auto;background-color:#111827;border:1px solid #1f2937;border-radius:8px;padding:24px;">
-    <h2 style="color:#06b6d4;margin-top:0;">🛡️ SecureCode AI — SMTP Connection Test</h2>
-    <p>This email verifies that your <strong>Brevo SMTP</strong> connection (STARTTLS port 587) is operational.</p>
+    <h2 style="color:#06b6d4;margin-top:0;">🛡️ SecureCode AI — Brevo Delivery Test</h2>
+    <p>This email verifies that your <strong>Brevo</strong> email integration is operational.</p>
     <div style="background:rgba(6,182,212,0.1);border-left:4px solid #06b6d4;padding:10px 14px;margin:16px 0;color:#67e8f9;font-size:13px;border-radius:4px;">
-      ✅ Connection &amp; STARTTLS Authentication Successful
+      ✅ Connection &amp; Authentication Successful
     </div>
     <p style="font-size:12px;color:#64748b;margin-top:20px;">SecureCode AI Platform • Automated Security Testing</p>
   </div>
 </body>
 </html>"""
-    return send_email_smtp(
+    return dispatch_email(
         to_email=to_email,
         subject=subject,
         text_content=text_content,
